@@ -1200,7 +1200,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
 <script>
 (function(){
   const STORAGE_KEY = 'literary-archive-v1';
-  const APP_VERSION = '6.6';
+  const APP_VERSION = '6.7';
   const DEFAULT_VENUES = [
     {name:'聯合副刊', type:'journal'},
     {name:'自由副刊', type:'journal'},
@@ -1280,7 +1280,8 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     { v: '6.3', note: '新增「直接貼上文本看看！」功能：貼上文字後，系統會嘗試判斷第一行是否為篇名／日期，其餘當作內文，判斷結果都可再手動修改，沒有篇名時自動編號為「篇名暫缺-N」，同名文章會進入合併確認流程。' },
     { v: '6.4', note: '系統正式定名為「狂作－文學創作管理系統」。' },
     { v: '6.5', note: '新增匯入office文件功能（.docx，暫不支援舊版 .doc），並提醒每個檔案最好只包含一篇文章。' },
-    { v: '6.6', note: '以系統 logo 製作手機主畫面圖示，支援 iOS「加入主畫面」與 Android PWA 安裝圖示。' }
+    { v: '6.6', note: '以系統 logo 製作手機主畫面圖示，支援 iOS「加入主畫面」與 Android PWA 安裝圖示。' },
+    { v: '6.7', note: '歡迎彈窗改為僅在第一次開啟或版本更新時自動顯示，其餘照常可透過「說明」按鈕開啟。' }
   ];
   const DEFAULT_GENRES = ['詩','小說','散文'];
 
@@ -1405,6 +1406,24 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
 
   function closeWelcomeModal(){
     document.getElementById('welcomeOverlay').classList.remove('show');
+  }
+
+  // Auto-shows the welcome modal only the first time this browser has ever
+  // opened the app, or whenever APP_VERSION has changed since the last time
+  // it was shown here — not on every load. "說明" still opens it manually
+  // any time regardless. Uses its own storage key, separate from the main
+  // article data, so it isn't affected by import/export of that data.
+  const WELCOME_SEEN_KEY = 'literary-archive-welcome-version';
+  async function maybeShowWelcomeOnLoad(){
+    let lastSeenVersion = null;
+    try{
+      const res = await storageGet(WELCOME_SEEN_KEY);
+      lastSeenVersion = res ? res.value : null;
+    } catch(e){}
+    if(lastSeenVersion !== APP_VERSION){
+      openWelcomeModal();
+      try{ await storageSet(WELCOME_SEEN_KEY, APP_VERSION); }catch(e){}
+    }
   }
 
   function updateExcelReminder(){
@@ -5079,7 +5098,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   });
 
   loadState();
-  openWelcomeModal();
+  maybeShowWelcomeOnLoad();
 })();
 </script>
 </body>
