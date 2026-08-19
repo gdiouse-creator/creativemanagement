@@ -254,8 +254,14 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   .overlay{
     position:fixed;inset:0;background:rgba(43,38,33,0.45);
     display:none;align-items:center;justify-content:center;z-index:50;padding:20px;
+    overscroll-behavior:contain;
   }
+  .font-zoom-group{display:inline-flex;align-items:center;gap:4px;}
+  .font-zoom-label{font-size:11.5px;color:var(--ink-soft);min-width:34px;text-align:center;}
   .overlay.show{display:flex;}
+  body.modal-open{overflow:hidden;touch-action:none;}
+  body.modal-open .overlay{touch-action:auto;}
+  body.modal-open .overlay .modal{touch-action:pan-y;}
   .modal{
     background:var(--card);border-radius:10px;box-shadow:0 20px 60px rgba(0,0,0,0.3);
     width:100%;max-width:640px;max-height:88vh;overflow:auto;
@@ -424,9 +430,15 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   <div class="toolbar">
     <button class="btn-primary" id="btnNewArticle">＋ 新增文章</button>
     <button class="btn-ghost" id="btnBatchAdd">批次新增</button>
+    <button class="btn-danger" id="btnQuickDelete" disabled>刪除（已選 0 篇）</button>
     <button class="btn-ghost" id="btnMergeArticles" disabled>合併項目（請勾選至少 2 篇）</button>
     <button class="btn-ghost" id="btnCategoryMenu">分類管理</button>
     <button class="btn-ghost btn-sm" id="btnColorSettings">顏色設定</button>
+    <span class="font-zoom-group">
+      <button class="btn-ghost btn-sm" id="btnFontDecrease" type="button" aria-label="縮小字體">字－</button>
+      <span id="fontZoomLabel" class="font-zoom-label">100%</span>
+      <button class="btn-ghost btn-sm" id="btnFontIncrease" type="button" aria-label="放大字體">字＋</button>
+    </span>
     <input type="search" class="search-input" id="searchInput" placeholder="搜尋篇名或關鍵字…">
     <button class="btn-ghost" id="btnBatchSystem" title="批次刪除・改分類・改文類・重算字數行數・批次選取・增刪關鍵字">批次系統</button>
     <button class="btn-ghost" id="btnInvertSelection">反向選擇</button>
@@ -440,6 +452,8 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
       <button class="vt-btn" data-mode="award" type="button">得獎統計</button>
       <button class="vt-btn" data-mode="publication" type="button">出版紀錄</button>
       <label class="compact-toggle vt-compact"><input type="checkbox" id="compactModeToggle" checked> 精簡顯示</label>
+      <label class="compact-toggle vt-compact"><input type="checkbox" id="hideGenreColToggle"> 隱藏文類欄</label>
+      <label class="compact-toggle vt-compact"><input type="checkbox" id="hideDateColToggle"> 隱藏創作日期欄</label>
     </div>
   </div>
 
@@ -518,6 +532,11 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
       </div>
       <div class="field">
         <label>內文</label>
+        <div class="font-zoom-group" style="margin-bottom:4px;">
+          <button class="btn-ghost btn-sm" id="btnContentFontDecrease" type="button" aria-label="縮小內文字體">字－</button>
+          <span id="contentFontLabel" class="font-zoom-label">16px</span>
+          <button class="btn-ghost btn-sm" id="btnContentFontIncrease" type="button" aria-label="放大內文字體">字＋</button>
+        </div>
         <textarea id="f-content" placeholder="貼上或輸入文章全文…"></textarea>
         <div class="hint">建議超過 5000 字時另外儲存檔案，自行上傳雲端備份，並可於備註欄貼上連結自我標註即可。</div>
       </div>
@@ -1200,7 +1219,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
 <script>
 (function(){
   const STORAGE_KEY = 'literary-archive-v1';
-  const APP_VERSION = '6.7';
+  const APP_VERSION = '6.9';
   const DEFAULT_VENUES = [
     {name:'聯合副刊', type:'journal'},
     {name:'自由副刊', type:'journal'},
@@ -1281,7 +1300,9 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     { v: '6.4', note: '系統正式定名為「狂作－文學創作管理系統」。' },
     { v: '6.5', note: '新增匯入office文件功能（.docx，暫不支援舊版 .doc），並提醒每個檔案最好只包含一篇文章。' },
     { v: '6.6', note: '以系統 logo 製作手機主畫面圖示，支援 iOS「加入主畫面」與 Android PWA 安裝圖示。' },
-    { v: '6.7', note: '歡迎彈窗改為僅在第一次開啟或版本更新時自動顯示，其餘照常可透過「說明」按鈕開啟。' }
+    { v: '6.7', note: '歡迎彈窗改為僅在第一次開啟或版本更新時自動顯示，其餘照常可透過「說明」按鈕開啟。' },
+    { v: '6.8', note: '1.批次新增旁新增「刪除」快速按鈕（批次系統內原本的刪除功能仍保留） 2.彈窗開啟時背景總表不再跟著滑動 3.新增字級調整功能（工具列全域字級、編輯文章內文字級各自獨立） 4.新增可個別隱藏「文類」「創作日期」欄位的開關（篇名維持必顯示，因總表目前唯一能開啟文章的入口）' },
+    { v: '6.9', note: '手機返回鍵開啟彈窗時改為關閉彈窗，不會直接離開頁面或程式。' }
   ];
   const DEFAULT_GENRES = ['詩','小說','散文'];
 
@@ -1668,6 +1689,28 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     renderStatsBar();
   }
 
+  // Column hide toggles (item 5): only 文類 and 創作日期 are toggleable —
+  // 篇名 stays fixed since it's the only click target that opens an
+  // article from the table (the 操作 column only has a delete button).
+  // Hiding a sticky column means the ones after it need their `left`
+  // recomputed — CSS can't do this on its own, so it's done here and
+  // applied as inline styles that override the stylesheet's fixed values.
+  let hideGenreCol = false;
+  let hideDateCol = false;
+  function computeStickyOffsets(){
+    const mobile = window.matchMedia('(max-width:640px)').matches;
+    const w = mobile
+      ? {checkbox:26, genre:44, title:104, date:64}
+      : {checkbox:30, genre:56, title:150, date:82};
+    let left = w.checkbox;
+    const genreLeft = left;
+    if(!hideGenreCol) left += w.genre;
+    const titleLeft = left;
+    left += w.title;
+    const dateLeft = left;
+    return {genreLeft, titleLeft, dateLeft};
+  }
+
   function renderHead(){
     const tr = document.getElementById('headRow');
     tr.innerHTML = '';
@@ -1680,16 +1723,22 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     tr.appendChild(thCheck);
     thCheck.querySelector('input').onchange = (e) => toggleSelectAll(e.target.checked);
 
+    const offsets = computeStickyOffsets();
     const cols = [
-      {label:'文類', key:'genre', cls:'col-genre'},
-      {label:'篇名', key:'title', cls:'col-1'},
-      {label:'創作日期', key:'createDate', cls:'col-2 col-2-shadow'},
+      {label:'文類', key:'genre', cls:'col-genre', hidden: hideGenreCol, left: offsets.genreLeft},
+      {label:'篇名', key:'title', cls:'col-1', hidden: false, left: offsets.titleLeft},
+      {label:'創作日期', key:'createDate', cls:'col-2' + (hideDateCol ? '' : ' col-2-shadow'), hidden: hideDateCol, left: offsets.dateLeft},
       {label:'字數', key:'wordCount', cls:'col-3'},
       {label:'行數', key:'lineCount', cls:'col-4'},
     ];
+    // The shadow-divider moves to 篇名 when 創作日期 is hidden, since 篇名
+    // becomes the last visible sticky column in that case.
+    if(hideDateCol) cols[1].cls += ' col-2-shadow';
     cols.forEach(c=>{
       const th = document.createElement('th');
       th.className = c.cls + (c.key ? ' sortable' : '');
+      if(c.hidden){ th.style.display = 'none'; }
+      if(c.left != null) th.style.left = c.left + 'px';
       th.textContent = c.label;
       if(c.key){
         if(sortKey===c.key) th.innerHTML += `<span class="sort-arrow">${sortDir==='asc'?'▲':'▼'}</span>`;
@@ -1789,6 +1838,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
       return;
     }
 
+    const bodyOffsets = computeStickyOffsets();
     list.forEach(a=>{
       const tr = document.createElement('tr');
       if(state.recentImportIds && state.recentImportIds.includes(a.id)) tr.className = 'row-recent-import';
@@ -1804,11 +1854,14 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
 
       const tdGenre = document.createElement('td');
       tdGenre.className = 'col-genre';
+      if(hideGenreCol) tdGenre.style.display = 'none';
+      tdGenre.style.left = bodyOffsets.genreLeft + 'px';
       tdGenre.textContent = a.genre || '詩';
       tr.appendChild(tdGenre);
 
       const tdTitle = document.createElement('td');
-      tdTitle.className = 'col-1 col-title';
+      tdTitle.className = 'col-1 col-title' + (hideDateCol ? ' col-2-shadow' : '');
+      tdTitle.style.left = bodyOffsets.titleLeft + 'px';
       const linkBtn = document.createElement('button');
       linkBtn.className = 'title-link';
       if(state.recentImportIds && state.recentImportIds.includes(a.id)) linkBtn.classList.add('title-recent-import');
@@ -1821,7 +1874,9 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
       tr.appendChild(tdTitle);
 
       const tdDate = document.createElement('td');
-      tdDate.className = 'col-2 col-2-shadow';
+      tdDate.className = 'col-2' + (hideDateCol ? '' : ' col-2-shadow');
+      if(hideDateCol) tdDate.style.display = 'none';
+      tdDate.style.left = bodyOffsets.dateLeft + 'px';
       tdDate.textContent = a.createDate || '—';
       tr.appendChild(tdDate);
 
@@ -2447,6 +2502,11 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   function updateBatchDeleteBtn(){
     const clearBtn = document.getElementById('btnClearSelection');
     if(clearBtn) clearBtn.textContent = `清除選擇（${selectedIds.size}）`;
+    const quickDelBtn = document.getElementById('btnQuickDelete');
+    if(quickDelBtn){
+      quickDelBtn.textContent = `刪除（已選 ${selectedIds.size} 篇）`;
+      quickDelBtn.disabled = selectedIds.size === 0;
+    }
     const delBtn = document.getElementById('btnOpenBatchDeleteFromSystem');
     if(delBtn){
       delBtn.textContent = `批次刪除（已選 ${selectedIds.size} 篇）`;
@@ -4814,6 +4874,11 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     document.getElementById('batchSystemOverlay').classList.add('show');
   };
   document.getElementById('btnInvertSelection').onclick = invertSelection;
+  document.getElementById('btnQuickDelete').onclick = batchDeleteSelected;
+  document.getElementById('btnFontDecrease').onclick = () => adjustUiZoom(-10);
+  document.getElementById('btnFontIncrease').onclick = () => adjustUiZoom(10);
+  document.getElementById('btnContentFontDecrease').onclick = () => adjustContentFontSize(-2);
+  document.getElementById('btnContentFontIncrease').onclick = () => adjustContentFontSize(2);
   document.getElementById('btnClearSelection').onclick = clearSelection;
   document.getElementById('closeBatchSystemModal').onclick = () => {
     document.getElementById('batchSystemOverlay').classList.remove('show');
@@ -4993,6 +5058,22 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     compactMode = e.target.checked;
     render();
   });
+  document.getElementById('hideGenreColToggle').addEventListener('change', (e)=>{
+    hideGenreCol = e.target.checked;
+    render();
+  });
+  document.getElementById('hideDateColToggle').addEventListener('change', (e)=>{
+    hideDateCol = e.target.checked;
+    render();
+  });
+  let resizeRenderTimer = null;
+  window.addEventListener('resize', ()=>{
+    // Sticky offsets depend on the desktop/mobile breakpoint — re-render
+    // (debounced) so rotating a phone or resizing a window keeps them
+    // correct instead of leaving stale offsets from the previous width.
+    clearTimeout(resizeRenderTimer);
+    resizeRenderTimer = setTimeout(render, 150);
+  });
 
 
   document.getElementById('searchInput').addEventListener('input', (e)=>{
@@ -5097,7 +5178,99 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     }
   });
 
+  // Locks the background table from scrolling whenever ANY modal/accordion
+  // overlay is open — watches every .overlay for its "show" class rather
+  // than hooking every individual open/close function (there are many),
+  // so this automatically covers modals added later too.
+  // Global font size (item 1): scales the whole app via CSS zoom on the
+  // root .wrap element — chosen over rewriting every px value to rem
+  // because the existing CSS is almost entirely pixel-based, and zoom is
+  // well supported on both desktop and mobile browsers (Chrome, Safari,
+  // Edge, and modern Firefox). Persisted separately from article data.
+  const CONTENT_FONT_KEY = 'literary-archive-content-font';
+  let contentFontSize = 16;
+  function applyContentFontSize(){
+    const ta = document.getElementById('f-content');
+    if(ta) ta.style.fontSize = contentFontSize + 'px';
+    const label = document.getElementById('contentFontLabel');
+    if(label) label.textContent = contentFontSize + 'px';
+  }
+  async function adjustContentFontSize(delta){
+    contentFontSize = Math.min(28, Math.max(12, contentFontSize + delta));
+    applyContentFontSize();
+    try{ await storageSet(CONTENT_FONT_KEY, String(contentFontSize)); }catch(e){}
+  }
+  async function loadContentFontSize(){
+    try{
+      const res = await storageGet(CONTENT_FONT_KEY);
+      if(res && res.value){
+        const n = parseInt(res.value, 10);
+        if(!isNaN(n)) contentFontSize = Math.min(28, Math.max(12, n));
+      }
+    } catch(e){}
+    applyContentFontSize();
+  }
+
+  const UI_ZOOM_KEY = 'literary-archive-ui-zoom';
+  let uiZoomLevel = 100;
+  function applyUiZoom(){
+    const wrapEl = document.querySelector('.wrap');
+    if(wrapEl) wrapEl.style.zoom = (uiZoomLevel/100);
+    const label = document.getElementById('fontZoomLabel');
+    if(label) label.textContent = uiZoomLevel + '%';
+  }
+  async function adjustUiZoom(delta){
+    uiZoomLevel = Math.min(150, Math.max(70, uiZoomLevel + delta));
+    applyUiZoom();
+    try{ await storageSet(UI_ZOOM_KEY, String(uiZoomLevel)); }catch(e){}
+  }
+  async function loadUiZoom(){
+    try{
+      const res = await storageGet(UI_ZOOM_KEY);
+      if(res && res.value){
+        const n = parseInt(res.value, 10);
+        if(!isNaN(n)) uiZoomLevel = Math.min(150, Math.max(70, n));
+      }
+    } catch(e){}
+    applyUiZoom();
+  }
+
+  (function setupScrollLock(){
+    const overlays = Array.from(document.querySelectorAll('.overlay'));
+    let modalHistoryPushed = false;
+    function updateLock(){
+      const anyOpen = overlays.some(el => el.classList.contains('show'));
+      document.body.classList.toggle('modal-open', anyOpen);
+      // Back-button behavior (item 3): opening a modal pushes one history
+      // entry, so the phone's back button closes the modal instead of
+      // leaving the page. Deliberately not trying to "consume" the entry
+      // again on a normal close (X/cancel/confirm) — that needs telling
+      // apart a programmatic close from a real back-press, which is
+      // fragile; the trade-off is a harmless extra back-press being
+      // absorbed later in the session, which is far safer than risking
+      // an unintended extra navigation.
+      if(anyOpen && !modalHistoryPushed){
+        history.pushState({modalOpen:true}, document.title);
+        modalHistoryPushed = true;
+      } else if(!anyOpen){
+        modalHistoryPushed = false;
+      }
+    }
+    overlays.forEach(el => {
+      new MutationObserver(updateLock).observe(el, {attributes:true, attributeFilter:['class']});
+    });
+    window.addEventListener('popstate', () => {
+      const anyOpen = overlays.some(el => el.classList.contains('show'));
+      if(anyOpen){
+        overlays.forEach(el => el.classList.remove('show'));
+      }
+    });
+    updateLock();
+  })();
+
   loadState();
+  loadUiZoom();
+  loadContentFontSize();
   maybeShowWelcomeOnLoad();
 })();
 </script>
