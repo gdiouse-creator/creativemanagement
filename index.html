@@ -362,12 +362,12 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   .combo-empty{padding:7px 10px;font-size:11.3px;color:var(--ink-faint);}
 
   .compact-toggle{display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink-soft);cursor:pointer;}
+  .view-toggle-extras{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;}
   .view-toggle{display:flex;align-items:stretch;border:1px solid var(--line);border-radius:6px;overflow:hidden;}
   .vt-btn{border:none;border-radius:0;background:var(--card);color:var(--ink-soft);
     padding:7px 12px;font-size:12px;border-right:1px solid var(--line);}
   .vt-btn:last-child{border-right:none;}
   .vt-btn.active{background:var(--ink);color:var(--paper);}
-  .vt-compact{border-left:1px solid var(--line);padding:0 12px;background:var(--paper-deep);white-space:nowrap;}
   .help-btn{color:var(--ink-faint);border-color:var(--line);font-size:11px;padding:4px 9px;}
 
   .stats-bar{
@@ -398,6 +398,8 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     .col-4{width:36px;min-width:36px;}
     .table-shell{max-height:70vh;}
     .modal{max-width:100%;}
+    .view-toggle-extras{gap:6px 10px;font-size:11.5px;}
+    .compact-toggle{font-size:11.5px;}
     .overlay{padding:10px;}
     .modal-body{padding:12px 14px;}
     .row2{gap:8px;}
@@ -451,9 +453,11 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
       <button class="vt-btn" data-mode="journal" type="button">投稿狀況</button>
       <button class="vt-btn" data-mode="award" type="button">得獎統計</button>
       <button class="vt-btn" data-mode="publication" type="button">出版紀錄</button>
-      <label class="compact-toggle vt-compact"><input type="checkbox" id="compactModeToggle" checked> 精簡顯示</label>
-      <label class="compact-toggle vt-compact"><input type="checkbox" id="hideGenreColToggle"> 隱藏文類欄</label>
-      <label class="compact-toggle vt-compact"><input type="checkbox" id="hideDateColToggle"> 隱藏創作日期欄</label>
+    </div>
+    <div class="view-toggle-extras">
+      <label class="compact-toggle"><input type="checkbox" id="compactModeToggle" checked> 精簡顯示</label>
+      <label class="compact-toggle"><input type="checkbox" id="hideGenreColToggle"> 隱藏文類欄</label>
+      <label class="compact-toggle"><input type="checkbox" id="hideDateColToggle"> 隱藏創作日期欄</label>
     </div>
   </div>
 
@@ -462,8 +466,6 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     <span><span class="dot rejected"></span>婉拒／落選</span>
     <span><span class="dot pending"></span>還沒有結果</span>
     <span>格式：投稿日期 → 結果 → 刊登日期</span>
-    <span>點擊刊物／獎項欄名稱可依「已發表／得獎 › 婉拒／落選 › 還沒有結果 › 無作為」排序</span>
-    <span>關鍵字欄位已隱藏，仍可用上方搜尋框查詢</span>
   </div>
 
   <div id="statsBar" class="stats-bar"></div>
@@ -890,12 +892,47 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
       <details class="accordion-section">
         <summary>功能介紹</summary>
         <div style="font-size:12.5px;line-height:1.8;">
-          <div><b>一、文章、分類、欄位的自訂和新增</b><br>新增文章時可直接填寫內文，並同步建立投稿／得獎／出版紀錄。分類管理可新增、刪除、搬移欄位，也能自訂第一層分類，不再侷限於發表刊物、文學獎、出版收錄三種。</div>
-          <div style="margin-top:8px;"><b>二、各種批次功能</b><br>批次新增可一次建立多篇文章；勾選文章後可用「批次系統」執行刪除、改分類、改文類、重算字數行數、增刪關鍵字，搭配「批次選取」依條件快速勾選、「反向選擇」一鍵反選；合併項目可把重複或誤植的文章合而為一。</div>
-          <div style="margin-top:8px;"><b>三、匯出匯入和導入功能</b><br>「匯出 Excel」永久備份、「匯入 Excel」讀回備份。「從其他excel匯入」則能把您原本自己在用的表格匯入系統，自行對應欄位、預覽確認、比對相似欄位名稱，正式匯入前都能反悔。</div>
-          <div style="margin-top:8px;"><b>四、篩選檢視更方便</b><br>精簡顯示、全部欄位／投稿狀況／得獎統計／出版紀錄可自由切換；關鍵字能直接點擊篩選；搜尋框、統計數字即時呈現，總表捲動也不怕跑版。</div>
-          <div style="margin-top:8px;"><b>五、顏色自訂功能</b><br>可自由更換系統底色、表框顏色、框線顏色，也提供多組配色一鍵套用。</div>
-          <div style="margin-top:8px;"><b>六、其他驚喜</b><br>還有一些小細節留給您自己慢慢發現～</div>
+          <div><b>一、這是什麼系統</b><br>本系統是一個純瀏覽器端的檢視／整理工具，性質上更接近一份可以互動的 Excel，不是像 Notion、Google Sheets 那樣會自動存檔、自動同步的系統。<br>
+          ・<b>不會自動存檔。</b>所有編輯都只存在您目前這個瀏覽器的暫存空間裡，關閉分頁、換電腦、清除瀏覽器資料，都可能讓資料消失。唯一真正的存檔方式是「匯出 Excel」，請養成每次編輯完就匯出的習慣。<br>
+          ・<b>不會上傳、不會同步。</b>沒有帳號、沒有雲端、沒有後台，資料只存在您自己的裝置上，換裝置無法自動接續，必須用匯出的 Excel 檔在新裝置上「匯入 Excel」還原。<br>
+          ・一次只服務一個人，沒有多人協作、沒有版本衝突處理。</div>
+
+          <div style="margin-top:12px;"><b>二、各按鈕的用途與識別邏輯</b></div>
+
+          <div style="margin-top:6px;"><b>頁首：存檔與匯入匯出</b><br>
+          ・<b>暫存</b>：把目前畫面資料存進瀏覽器暫存空間，重新整理頁面不會遺失；但仍不等於永久存檔，換裝置或清除瀏覽器資料一樣會消失。<br>
+          ・<b>匯出 Excel／匯入 Excel</b>：本系統自己的存讀檔格式，兩者互相對應，不會做內容判斷。<br>
+          ・<b>從其他excel匯入</b>：把您自己整理的表格匯進來，需要手動把欄位一一對應；遇到看起來很像但打法不完全一樣的名稱（例如「靠悲」和「靠!悲」）會排在一起提醒您確認，避免漏掉。<br>
+          ・<b>從TXT／DOCX檔案匯入</b>：篇名取自檔名（自動去掉副檔名、頭尾括號、開頭破折號）；創作日期先嘗試從內文找日期格式，找不到才退而求其次用檔案的修改日期參考；文字編碼也會自動判斷（UTF-8、Big5、UTF-16），判斷有疑慮的檔案會標示提醒您檢查。<br>
+          ・<b>直接貼上文本看看！</b>：判斷邏輯是「第一行如果不是內文縮排開頭，就當作標題列」，因為稿件慣例上內文段落都有全形縮排，第一行沒有縮排通常就是篇名、作者、日期擠在一起的那一行。</div>
+
+          <div style="margin-top:8px;"><b>新增與批次操作</b><br>
+          ・<b>＋新增文章</b>：手動逐篇建立。<br>
+          ・<b>批次新增</b>：一次建立多篇。<br>
+          ・<b>刪除（已選 N 篇）</b>：直接對目前勾選的文章刪除；「批次系統」裡也有同樣的刪除功能，兩處入口，方便您勾選很多篇時就近找到。<br>
+          ・<b>合併項目</b>：把重複或誤植的文章合併成一篇，需要先勾選至少 2 篇。<br>
+          ・<b>批次系統</b>：收納改分類、改文類、重算字數行數、增刪關鍵字、批次選取（依新匯入的／同文類／某分類／某時間段／字數行數範圍快速勾選）這些功能，都需要先勾選文章才能用。<br>
+          ・<b>反向選擇／清除選擇</b>：反向選擇把目前的勾選狀態整個反過來；清除選擇一次取消全部勾選。</div>
+
+          <div style="margin-top:8px;"><b>篩選與檢視</b><br>
+          ・<b>全部欄位／投稿狀況／得獎統計／出版紀錄</b>：切換要看哪一種分類的細節；切到分類檢視時，欄位標題會顯示目前累積的投稿／得獎數字，滑鼠移上去可看完整的已刊登／婉拒／還沒有結果細項。點擊刊物／獎項欄名稱，可以依照「已發表／得獎 › 婉拒／落選 › 還沒有結果 › 無作為」排序，方便快速看出哪些欄位還沒處理。<br>
+          ・<b>精簡顯示／隱藏文類欄／隱藏創作日期欄</b>：精簡顯示只留必要欄位；後兩者可以個別關掉這兩欄，讓手機畫面不會太擠（篇名欄目前是唯一能點進文章編輯的入口，所以沒有提供隱藏）。<br>
+          ・<b>搜尋框</b>：可查篇名或關鍵字，就算關鍵字欄位本身被隱藏了，也一樣查得到。<br>
+          ・<b>分類管理</b>：新增、刪除、搬移欄位，也能自訂第一層分類，不只發表刊物、文學獎、出版收錄三種。</div>
+
+          <div style="margin-top:8px;"><b>個人化設定</b><br>
+          ・<b>顏色設定</b>：自訂系統底色、表框顏色、框線顏色，也有幾組配色一鍵套用。<br>
+          ・<b>字－ 100% 字＋</b>：調整整個系統畫面的文字大小；編輯文章畫面裡另外有一組只調整內文欄位字級的，兩者互不影響，各自記住您上次的設定。</div>
+
+          <div style="margin-top:12px;"><b>三、該從何開始</b><br>
+          您現在的情況比較接近哪一種？<br>
+          ・完全從零開始，還沒有任何電子化的紀錄 → 直接用「＋新增文章」慢慢建立<br>
+          ・手上已經有一份自己在用的 Excel／Google Sheet → 用「從其他excel匯入」<br>
+          ・手上是一堆 txt 或 Word 檔案 → 用「從TXT／DOCX檔案匯入」，檔案不多的話「直接貼上文本看看！」更快<br><br>
+          不管從哪裡開始，建議接下來都做這幾件事：<br>
+          1. 檢查「分類管理」，確認發表刊物／文學獎／出版收錄這幾個分類夠不夠用，不夠可以自己新增<br>
+          2. 資料建好後記得按「匯出 Excel」——這是唯一真正的存檔<br>
+          3. 有空慢慢摸索「批次系統」跟篩選功能，資料量大了之後這些才會真正省力</div>
         </div>
       </details>
       <details class="accordion-section">
@@ -1219,7 +1256,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
 <script>
 (function(){
   const STORAGE_KEY = 'literary-archive-v1';
-  const APP_VERSION = '6.9';
+  const APP_VERSION = '6.11';
   const DEFAULT_VENUES = [
     {name:'聯合副刊', type:'journal'},
     {name:'自由副刊', type:'journal'},
@@ -1302,7 +1339,9 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     { v: '6.6', note: '以系統 logo 製作手機主畫面圖示，支援 iOS「加入主畫面」與 Android PWA 安裝圖示。' },
     { v: '6.7', note: '歡迎彈窗改為僅在第一次開啟或版本更新時自動顯示，其餘照常可透過「說明」按鈕開啟。' },
     { v: '6.8', note: '1.批次新增旁新增「刪除」快速按鈕（批次系統內原本的刪除功能仍保留） 2.彈窗開啟時背景總表不再跟著滑動 3.新增字級調整功能（工具列全域字級、編輯文章內文字級各自獨立） 4.新增可個別隱藏「文類」「創作日期」欄位的開關（篇名維持必顯示，因總表目前唯一能開啟文章的入口）' },
-    { v: '6.9', note: '手機返回鍵開啟彈窗時改為關閉彈窗，不會直接離開頁面或程式。' }
+    { v: '6.9', note: '手機返回鍵開啟彈窗時改為關閉彈窗，不會直接離開頁面或程式。' },
+    { v: '6.10', note: '修正字級放大或畫面較窄時，「隱藏創作日期欄」等勾選框被裁切看不到的問題，改為超出寬度時自動換行顯示。' },
+    { v: '6.11', note: '重寫「功能介紹」內容：先介紹系統的檢視本質與限制，再逐一說明各按鈕用途與判斷邏輯，最後提供「該從何開始」的分岔式指引；原本總表上方常駐的排序與關鍵字搜尋提示文字，移入功能介紹說明。' }
   ];
   const DEFAULT_GENRES = ['詩','小說','散文'];
 
