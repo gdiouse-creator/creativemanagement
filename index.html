@@ -725,6 +725,69 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   </div>
 </div>
 
+<!-- Full Manuscript Import Modal (全本導入) -->
+<div class="overlay" id="fullManuscriptOverlay">
+  <div class="modal" style="max-width:720px;">
+    <div class="modal-head">
+      <div>
+        <h2>全本導入</h2>
+        <div class="sub">貼上整份稿件，系統會依「第○章」或「＼」開頭自動切分成多篇章節。僅能識別這兩種格式，其他排版方式請改用其他匯入方式。</div>
+      </div>
+      <button class="close-x" id="closeFullManuscriptModal">✕</button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow:auto;">
+      <div class="field">
+        <label>識別方式</label>
+        <div style="display:flex;gap:14px;font-size:12.5px;">
+          <label style="display:flex;align-items:center;gap:4px;"><input type="radio" name="fm-mode" value="chapter" checked> 識別「第○章」（章／回／卷／節）</label>
+          <label style="display:flex;align-items:center;gap:4px;"><input type="radio" name="fm-mode" value="backslash"> 識別「＼」開頭的行</label>
+        </div>
+      </div>
+      <div class="field">
+        <label>貼上整份稿件</label>
+        <textarea id="fm-textarea" style="min-height:180px;" placeholder="把整份稿件貼在這裡……"></textarea>
+      </div>
+      <button type="button" class="btn-primary btn-sm" id="btnFmParse">解析章節</button>
+
+      <div id="fmPreviewSection" style="display:none;margin-top:14px;">
+        <div class="hint" id="fmLeadingTextNote" style="margin-bottom:8px;"></div>
+        <div class="field">
+          <label>偵測到的章節（取消勾選可排除誤判的項目）</label>
+          <div id="fmChapterList" style="max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:6px;padding:6px;"></div>
+        </div>
+
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);">
+          <div class="field"><label>套用到全部章節的共同設定</label></div>
+          <div class="row2">
+            <div class="field" style="max-width:110px;"><label>文類</label><select id="fm-genre"></select></div>
+            <div class="field" style="max-width:150px;"><label>創作日期（選填）</label><input type="date" id="fm-createDate"></div>
+            <div class="field"><label>關鍵字（選填，以頓號分隔）</label><input type="text" id="fm-keywords"></div>
+          </div>
+          <div class="field" style="max-width:200px;"><label>所屬部（選填）</label><input type="text" id="fm-novelPart" placeholder="例如：上部"></div>
+        </div>
+
+        <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line);">
+          <div class="field">
+            <label>對應到哪個出版品（必選，決定這些章節屬於哪一本書）</label>
+            <select id="fm-venue"></select>
+          </div>
+          <div class="field" id="fm-new-venue-field" style="display:none;">
+            <label>新出版品名稱</label>
+            <input type="text" id="fm-new-venue-name" placeholder="輸入新書名">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div></div>
+      <div class="right">
+        <button class="btn-ghost" id="btnCancelFullManuscript">取消</button>
+        <button class="btn-primary" id="btnConfirmFullManuscript" disabled>確認匯入</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Novel View Modal (小說檢視) -->
 <div class="overlay" id="novelViewOverlay">
   <div class="modal" style="max-width:640px;">
@@ -1197,6 +1260,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
       <button class="btn-ghost" id="btnOpenBatchGenreFromSystem" style="width:100%;margin-bottom:8px;" disabled>批次分類（改文類）（已選 0 篇）</button>
       <button class="btn-ghost" id="btnOpenBatchRecalcFromSystem" style="width:100%;margin-bottom:8px;" disabled>批次重算字數行數（已選 0 篇）</button>
       <button class="btn-ghost" id="btnOpenBatchKeywordFromSystem" style="width:100%;margin-bottom:8px;" disabled>批次增刪關鍵字（已選 0 篇）</button>
+      <button class="btn-ghost" id="btnOpenFullManuscriptImport" style="width:100%;margin-bottom:8px;">全本導入（僅能識別章節用＼分篇）</button>
       <button class="btn-danger" id="btnOpenBatchDeleteFromSystem" style="width:100%;" disabled>批次刪除（已選 0 篇）</button>
     </div>
     <div class="modal-foot">
@@ -1334,7 +1398,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
 <script>
 (function(){
   const STORAGE_KEY = 'literary-archive-v1';
-  const APP_VERSION = '7.7';
+  const APP_VERSION = '7.8';
   const DEFAULT_VENUES = [
     {name:'聯合副刊', type:'journal'},
     {name:'自由副刊', type:'journal'},
@@ -1426,7 +1490,8 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     { v: '7.4', note: '精簡寫作模式「上一章／下一章」旁新增「新增上一章」「新增下一章」，會自動複製本章的文類、所屬部、收錄狀態，只需輸入新篇名即可快速建立前後章節並直接進入寫作。' },
     { v: '7.5', note: '「新增上一章／新增下一章」改為自動重整同一部底下的章節序：插入新章節時，插入點之後（含目前這章）的章節序全部自動往後遞補一位，不會再有章節序重複的問題。' },
     { v: '7.6', note: '用「新增上一章／新增下一章」建立的新章節，補上跟新匯入文章一樣的置頂與標題反白提醒，回到總表時不會因為資料多而找不到剛新增的章節。' },
-    { v: '7.7', note: '修正重大匯出風險：Excel 單一儲存格上限為 32,767 字，若有文章內文超過這個上限，原本會在匯出時整個失敗、不會產生任何檔案、也不會顯示任何錯誤訊息。現在匯出前會先檢查並明確列出超過上限的文章篇名字數，內文欄位下方也加註了這個上限提醒。' }
+    { v: '7.7', note: '修正重大匯出風險：Excel 單一儲存格上限為 32,767 字，若有文章內文超過這個上限，原本會在匯出時整個失敗、不會產生任何檔案、也不會顯示任何錯誤訊息。現在匯出前會先檢查並明確列出超過上限的文章篇名字數，內文欄位下方也加註了這個上限提醒。' },
+    { v: '7.8', note: '批次系統新增「全本導入」：貼上整份稿件，可依「第○章」或「＼」開頭自動切分成多篇章節，切分結果可預覽並取消勾選誤判項目，可批次套用文類、創作日期、關鍵字、所屬部，並確認要對應到哪一個出版品；章節序自動接續既有章節編號，同名章節會進入合併確認流程。' }
   ];
   const DEFAULT_GENRES = ['詩','小說','散文'];
 
@@ -2189,7 +2254,216 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     });
   }
 
-  // ---------- novel view (小說檢視) + write mode (精簡寫作模式) ----------
+  // ---------- full manuscript import (全本導入) ----------
+  // Detects chapter-start lines by two methods, then splits the manuscript
+  // into {title, content} chapters using detected line indices as
+  // boundaries. Matching only at the START of a (trimmed) line — not
+  // anywhere in it — is what keeps this safe against narrative text that
+  // merely MENTIONS a chapter number without actually being a header.
+  function splitFullManuscript(rawText, mode){
+    const lines = rawText.replace(/\r\n/g, '\n').split('\n');
+    const markers = [];
+    if(mode === 'chapter'){
+      const re = /^第[〇零一二三四五六七八九十百千萬\d]+[章回卷節]/;
+      lines.forEach((line, i)=>{
+        const trimmed = line.trim();
+        if(re.test(trimmed)) markers.push({lineIndex: i, title: trimmed});
+      });
+    } else if(mode === 'backslash'){
+      lines.forEach((line, i)=>{
+        const trimmed = line.trim();
+        if(trimmed.startsWith('\\')) markers.push({lineIndex: i, title: trimmed.slice(1).trim()});
+      });
+    }
+    if(markers.length === 0) return {chapters: [], leadingText: rawText.trim()};
+    const chapters = [];
+    for(let i=0; i<markers.length; i++){
+      const start = markers[i].lineIndex;
+      const end = (i+1 < markers.length) ? markers[i+1].lineIndex : lines.length;
+      chapters.push({
+        title: markers[i].title || `未命名章節${i+1}`,
+        content: lines.slice(start+1, end).join('\n').trim()
+      });
+    }
+    return {chapters, leadingText: lines.slice(0, markers[0].lineIndex).join('\n').trim()};
+  }
+
+  let fmParsedChapters = [];
+
+  function openFullManuscriptModal(){
+    document.getElementById('fm-textarea').value = '';
+    document.querySelector('input[name="fm-mode"][value="chapter"]').checked = true;
+    document.getElementById('fmPreviewSection').style.display = 'none';
+    document.getElementById('btnConfirmFullManuscript').disabled = true;
+    fmParsedChapters = [];
+    document.getElementById('fullManuscriptOverlay').classList.add('show');
+  }
+
+  function closeFullManuscriptModal(){
+    document.getElementById('fullManuscriptOverlay').classList.remove('show');
+  }
+
+  function parseFullManuscript(){
+    const raw = document.getElementById('fm-textarea').value;
+    const mode = document.querySelector('input[name="fm-mode"]:checked').value;
+    const result = splitFullManuscript(raw, mode);
+    fmParsedChapters = result.chapters.map(c => ({...c, included: true}));
+
+    const leadingNote = document.getElementById('fmLeadingTextNote');
+    if(fmParsedChapters.length === 0){
+      leadingNote.textContent = '沒有偵測到任何章節，請確認格式是否符合，或改用另一種識別方式。';
+      document.getElementById('fmPreviewSection').style.display = 'block';
+      document.getElementById('fmChapterList').innerHTML = '<div class="rec-empty">沒有偵測到章節</div>';
+      document.getElementById('btnConfirmFullManuscript').disabled = true;
+      return;
+    }
+    leadingNote.textContent = result.leadingText
+      ? `第一個章節標記之前，還有 ${result.leadingText.length} 字的內容不會被匯入（通常是序、前言），如需保留請自行複製後另外建檔。`
+      : '';
+
+    renderFmChapterList();
+
+    const genreSel = document.getElementById('fm-genre');
+    genreSel.innerHTML = '';
+    state.genres.forEach(g=>{
+      const o = document.createElement('option');
+      o.value = g; o.textContent = g;
+      if(g === '小說') o.selected = true;
+      genreSel.appendChild(o);
+    });
+
+    const venueSel = document.getElementById('fm-venue');
+    venueSel.innerHTML = '<option value="">請選擇…</option>';
+    state.venues.filter(v=>v.type==='publication').forEach(v=>{
+      const o = document.createElement('option');
+      o.value = v.id; o.textContent = v.name;
+      venueSel.appendChild(o);
+    });
+    const newOpt = document.createElement('option');
+    newOpt.value = '__new__'; newOpt.textContent = '＋ 建立新出版品';
+    venueSel.appendChild(newOpt);
+    document.getElementById('fm-new-venue-field').style.display = 'none';
+    document.getElementById('fm-new-venue-name').value = '';
+
+    document.getElementById('fmPreviewSection').style.display = 'block';
+    updateFmConfirmButtonState();
+  }
+
+  function renderFmChapterList(){
+    const box = document.getElementById('fmChapterList');
+    box.innerHTML = '';
+    fmParsedChapters.forEach((c, idx)=>{
+      const row = document.createElement('label');
+      row.style.cssText = 'display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px;';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = c.included;
+      cb.addEventListener('change', ()=>{
+        fmParsedChapters[idx].included = cb.checked;
+        updateFmConfirmButtonState();
+      });
+      const label = document.createElement('span');
+      label.textContent = `${c.title}（${countWords(c.content)} 字）`;
+      row.appendChild(cb);
+      row.appendChild(label);
+      box.appendChild(row);
+    });
+  }
+
+  function updateFmConfirmButtonState(){
+    const anyIncluded = fmParsedChapters.some(c=>c.included);
+    const venueVal = document.getElementById('fm-venue').value;
+    const venueOk = venueVal === '__new__'
+      ? document.getElementById('fm-new-venue-name').value.trim() !== ''
+      : venueVal !== '';
+    document.getElementById('btnConfirmFullManuscript').disabled = !(anyIncluded && venueOk);
+  }
+
+  function confirmFullManuscriptImport(){
+    const included = fmParsedChapters.filter(c=>c.included);
+    if(included.length === 0) return;
+
+    let venueId = document.getElementById('fm-venue').value;
+    if(venueId === '__new__'){
+      const name = document.getElementById('fm-new-venue-name').value.trim();
+      if(!name) return;
+      const newVenue = {id: uid(), name, type: 'publication'};
+      state.venues.push(newVenue);
+      venueId = newVenue.id;
+    }
+    const venue = getVenue(venueId);
+    if(!venue) return;
+
+    const genre = document.getElementById('fm-genre').value;
+    const createDate = document.getElementById('fm-createDate').value;
+    const keywords = parseKeywords(document.getElementById('fm-keywords').value);
+    const novelPart = document.getElementById('fm-novelPart').value.trim();
+
+    // Continue numbering from whatever's already in this venue+部, rather
+    // than always restarting at 1 — avoids colliding with chapters that
+    // might already exist there from a previous import or manual entry.
+    const existingChapters = getBookChapters(venueId).filter(a => (a.novelPart||'') === novelPart);
+    let nextOrder = existingChapters.reduce((max, a) => (a.novelChapterOrder != null && a.novelChapterOrder >= max) ? a.novelChapterOrder + 1 : max, 1);
+
+    const addedIds = [];
+    const conflictQueue = [];
+
+    included.forEach(c=>{
+      const title = c.title.trim() || `未命名章節`;
+      const buildNew = () => ({
+        id: uid(), title, genre, createDate, createLabel: '初稿', keywords, content: c.content,
+        wordCount: countWords(c.content), lineCount: countLines(c.content),
+        novelPart, novelChapterOrder: nextOrder++,
+        drafts: [],
+        records: { [venue.id]: [{id: uid(), submitDate: '', result: 'accepted', publishDate: '', note: ''}] }
+      });
+      const existing = state.articles.find(a => a.title === title);
+      if(!existing){
+        const newArticle = buildNew();
+        state.articles.push(newArticle);
+        addedIds.push(newArticle.id);
+      } else {
+        const tempArticle = buildNew();
+        state.articles.push(tempArticle);
+        conflictQueue.push({existingId: existing.id, tempId: tempArticle.id});
+      }
+    });
+
+    if(!state.recentImportIds) state.recentImportIds = [];
+    addedIds.forEach(id => { if(!state.recentImportIds.includes(id)) state.recentImportIds.push(id); });
+
+    persist();
+    render();
+    closeFullManuscriptModal();
+
+    if(conflictQueue.length > 0){
+      processNextFullManuscriptConflict(conflictQueue, addedIds.length);
+    } else {
+      showInfoModal(`全本導入完成：新增 ${addedIds.length} 篇章節到「${venue.name}」。`);
+    }
+  }
+
+  let fmConflictQueue = [];
+  let fmAddedCount = 0;
+  let fmConflictTotal = 0;
+  function processNextFullManuscriptConflict(queue, addedCount){
+    fmConflictQueue = queue;
+    fmAddedCount = addedCount;
+    fmConflictTotal = queue.length;
+    processNextFmConflictStep();
+  }
+  function processNextFmConflictStep(){
+    if(fmConflictQueue.length === 0){
+      showInfoModal(`全本導入完成：新增 ${fmAddedCount} 篇章節，另外處理了 ${fmConflictTotal} 篇同名章節的合併／跳過。`);
+      return;
+    }
+    const {existingId, tempId} = fmConflictQueue.shift();
+    const existing = getArticle(existingId);
+    const tempArticle = getArticle(tempId);
+    if(!existing || !tempArticle){ processNextFmConflictStep(); return; }
+    openMergeArticlesModal([existing, tempArticle], () => { processNextFmConflictStep(); }, ['系統內－舊檔', '來源－新檔']);
+  }
+
   // A "chapter" is any article with an accepted record under this
   // publication venue — reuses the EXISTING 出版收錄 relationship rather
   // than a new "belongs to this book" field, per Ger's own observation.
@@ -5401,6 +5675,22 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     document.getElementById('batchSystemOverlay').classList.remove('show');
     openBatchKeywordModal();
   };
+  document.getElementById('btnOpenFullManuscriptImport').onclick = () => {
+    document.getElementById('batchSystemOverlay').classList.remove('show');
+    openFullManuscriptModal();
+  };
+  document.getElementById('closeFullManuscriptModal').onclick = closeFullManuscriptModal;
+  document.getElementById('btnCancelFullManuscript').onclick = closeFullManuscriptModal;
+  document.getElementById('fullManuscriptOverlay').addEventListener('click', (e)=>{
+    if(e.target.id === 'fullManuscriptOverlay') closeFullManuscriptModal();
+  });
+  document.getElementById('btnFmParse').onclick = parseFullManuscript;
+  document.getElementById('fm-venue').addEventListener('change', (e)=>{
+    document.getElementById('fm-new-venue-field').style.display = e.target.value === '__new__' ? 'block' : 'none';
+    updateFmConfirmButtonState();
+  });
+  document.getElementById('fm-new-venue-name').addEventListener('input', updateFmConfirmButtonState);
+  document.getElementById('btnConfirmFullManuscript').onclick = confirmFullManuscriptImport;
   document.getElementById('closeBatchKeywordModal').onclick = closeBatchKeywordModal;
   document.getElementById('btnCloseBatchKeyword').onclick = closeBatchKeywordModal;
   document.getElementById('btnBatchKeywordAdd').onclick = batchAddKeyword;
@@ -5648,7 +5938,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     if(e.target.id === 'batchCategoryOverlay') closeBatchCategoryModal();
   });
   document.addEventListener('keydown', (e)=>{
-    if(e.key === 'Escape'){ closeArticleModal(); closeBatchModal(); closeCategoryModal(); closeBatchCategoryModal(); closeWelcomeModal(); closeImportWizard(); closeMergeArticlesModal(); document.getElementById('colorSettingsOverlay').classList.remove('show'); document.getElementById('batchSystemOverlay').classList.remove('show'); closeBatchGenreModal(); closeBatchSelectModal(); closeBatchKeywordModal(); closeTxtImportModal(); closePasteImportModal(); closeNovelViewModal(); closeWriteModeModal(); }
+    if(e.key === 'Escape'){ closeArticleModal(); closeBatchModal(); closeCategoryModal(); closeBatchCategoryModal(); closeWelcomeModal(); closeImportWizard(); closeMergeArticlesModal(); document.getElementById('colorSettingsOverlay').classList.remove('show'); document.getElementById('batchSystemOverlay').classList.remove('show'); closeBatchGenreModal(); closeBatchSelectModal(); closeBatchKeywordModal(); closeTxtImportModal(); closePasteImportModal(); closeNovelViewModal(); closeWriteModeModal(); closeFullManuscriptModal(); }
   });
 
   document.getElementById('closeWelcomeModal').onclick = closeWelcomeModal;
