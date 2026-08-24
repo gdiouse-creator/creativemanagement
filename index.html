@@ -1114,11 +1114,17 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 
           <div style="margin-top:8px;"><b>新增與批次操作</b><br>
           ・<b>＋新增文章</b>：手動逐篇建立。<br>
+          ・<b>編輯模式</b>：編輯文章畫面裡，除了「文章內容」「文章履歷」，還有一個「編輯模式」分頁，切過去會把內文欄位放到最大、其他欄位收起來，適合在小螢幕上專心寫作，不限文類都能用，切換分頁不會遺失內容。<br>
           ・<b>批次新增</b>：一次建立多篇。<br>
           ・<b>刪除（已選 N 篇）</b>：直接對目前勾選的文章刪除；「批次系統」裡也有同樣的刪除功能，兩處入口，方便您勾選很多篇時就近找到。<br>
           ・<b>合併項目</b>：把重複或誤植的文章合併成一篇，需要先勾選至少 2 篇。<br>
-          ・<b>批次系統</b>：收納改分類、改文類、重算字數行數、增刪關鍵字、批次選取（依新匯入的／同文類／某分類／某時間段／字數行數範圍快速勾選）這些功能，都需要先勾選文章才能用。<br>
+          ・<b>批次系統</b>：收納以下這些功能，多數需要先勾選文章才能用——改分類、改文類、重算字數行數、增刪關鍵字、批次選取（依新匯入的／同文類／某分類／某時間段／字數行數範圍快速勾選）；<b>全本導入</b>可以貼上整份稿件，依「第○章」或「＼」開頭自動切分成多篇章節，切分結果可預覽、取消勾選誤判項目，能批次套用文類、創作日期、關鍵字、所屬部，並指定要對應到哪個出版品；<b>批次匯出</b>可以把已選文章匯出成純文字檔（適合投稿附件，同一本小說的章節會自動合併成一個檔案）、Excel（可勾選要匯出的欄位）、或 PDF（透過瀏覽器列印功能，不需額外字型，中文顯示保證正確）。<br>
           ・<b>反向選擇／清除選擇</b>：反向選擇把目前的勾選狀態整個反過來；清除選擇一次取消全部勾選。</div>
+
+          <div style="margin-top:8px;"><b>小說創作功能</b><br>
+          ・<b>所屬部／章節序</b>：文類選成「小說」時才會出現這兩個欄位，用來記錄這一章屬於書裡哪個部分、排第幾章，方便小說檢視時正確排序。<br>
+          ・<b>小說檢視</b>：切到「出版紀錄」檢視模式，出版收錄欄位名稱旁會有 📖 圖示，點進去可以看到整本書累積的字數、章數，以及依部、章節序排列的章節清單，也能直接編輯這本書本身的投稿／出版狀態——這跟底下各章節各自的投稿紀錄是分開的兩件事，因為整本書投稿出版社、投文學獎是常見情境，但個別章節投稿雜誌又是另一回事。<br>
+          ・<b>精簡寫作模式</b>：在小說檢視裡點進任一章，會進入內文最大化的精簡編輯畫面，方便在手機等小螢幕上專心寫作；可以用「上一章／下一章」快速切換，也能用「新增上一章／新增下一章」直接在前後插入新章節（會自動複製文類、所屬部、收錄狀態），插入時後面的章節序會自動遞補，不會撞號。</div>
 
           <div style="margin-top:8px;"><b>篩選與檢視</b><br>
           ・<b>全部欄位／投稿狀況／得獎統計／出版紀錄</b>：切換要看哪一種分類的細節；切到分類檢視時，欄位標題會顯示目前累積的投稿／得獎數字，滑鼠移上去可看完整的已刊登／婉拒／還沒有結果細項。點擊刊物／獎項欄名稱，可以依照「已發表／得獎 › 婉拒／落選 › 還沒有結果 › 無作為」排序，方便快速看出哪些欄位還沒處理。<br>
@@ -1464,7 +1470,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 <script>
 (function(){
   const STORAGE_KEY = 'literary-archive-v1';
-  const APP_VERSION = '8.2';
+  const APP_VERSION = '8.4';
   const DEFAULT_VENUES = [
     {name:'聯合副刊', type:'journal'},
     {name:'自由副刊', type:'journal'},
@@ -1561,7 +1567,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     { v: '7.9', note: '分類管理打開時，各分類手風琴改為預設全部摺疊。' },
     { v: '8.0', note: '批次系統新增「批次匯出」（純文字檔階段）：將已選文章匯出成適合投稿附件的 .txt 檔，可設定作者名稱（整批套用）與非小說文章是否顯示作者；同一本小說的章節會自動合併成一個檔案、依部與章節序排列，作者只在書名下方出現一次；有分隔線區隔各篇／各章。單檔直接下載，多檔會打包成一個 ZIP 一次下載，不會觸發多次瀏覽器下載。Excel 欄位選擇與 PDF 列印匯出待後續階段加入。' },
     { v: '8.1', note: '批次匯出新增 Excel 格式：可切換匯出格式為純文字檔或 Excel，Excel 可勾選要匯出的欄位（文類、篇名、創作日期、字數、行數、關鍵字、創作地點、內文、投稿／得獎／出版紀錄摘要），已選文章每篇一列，套用跟總表匯出相同的單一儲存格 32,767 字上限檢查。PDF 列印匯出待後續階段加入。' },
-    { v: '8.2', note: '批次匯出新增 PDF 格式（透過瀏覽器內建列印功能，不需額外字型或函式庫，中文顯示保證正確）：開啟瀏覽器列印視窗，各篇／各章自動分頁，小說章節加上分隔線與標題，作者設定與純文字檔共用同一組。至此批次匯出三種格式（純文字檔、Excel、PDF）全部完成。' }
+    { v: '8.2', note: '批次匯出新增 PDF 格式（透過瀏覽器內建列印功能，不需額外字型或函式庫，中文顯示保證正確）：開啟瀏覽器列印視窗，各篇／各章自動分頁，小說章節加上分隔線與標題，作者設定與純文字檔共用同一組。至此批次匯出三種格式（純文字檔、Excel、PDF）全部完成。' },
+    { v: '8.3', note: '更新「功能介紹」內容，補齊 v7.1 以來新增的功能與按鈕說明：編輯模式分頁、小說創作功能（所屬部／章節序、小說檢視、精簡寫作模式、新增上一章／新增下一章）、全本導入、批次匯出（純文字檔／Excel／PDF）。' },
+    { v: '8.4', note: '修正排序後📖小說檢視按鈕失去反應的問題：加上排序箭頭時原本用了會整個重建欄位內容的寫法，導致📖按鈕的點擊事件被清除，改為正確的方式加入箭頭，不會影響其他按鈕。' }
   ];
   const DEFAULT_GENRES = ['詩','小說','散文'];
 
@@ -2000,7 +2008,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       if(c.left != null) th.style.left = c.left + 'px';
       th.textContent = c.label;
       if(c.key){
-        if(sortKey===c.key) th.innerHTML += `<span class="sort-arrow">${sortDir==='asc'?'▲':'▼'}</span>`;
+        if(sortKey===c.key){
+          const arrowSpan = document.createElement('span');
+          arrowSpan.className = 'sort-arrow';
+          arrowSpan.textContent = sortDir==='asc' ? '▲' : '▼';
+          th.appendChild(arrowSpan);
+        }
         th.onclick = () => {
           if(sortKey===c.key) sortDir = sortDir==='asc'?'desc':'asc';
           else { sortKey = c.key; sortDir='desc'; }
@@ -2034,7 +2047,12 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           };
           th.appendChild(novelBtn);
         }
-        if(sortKey === key) th.innerHTML += `<span class="sort-arrow">${sortDir==='asc'?'▲':'▼'}</span>`;
+        if(sortKey === key){
+          const arrowSpan = document.createElement('span');
+          arrowSpan.className = 'sort-arrow';
+          arrowSpan.textContent = sortDir==='asc' ? '▲' : '▼';
+          th.appendChild(arrowSpan);
+        }
         th.onclick = () => {
           if(sortKey === key) sortDir = sortDir==='asc' ? 'desc' : 'asc';
           else { sortKey = key; sortDir = 'desc'; }
