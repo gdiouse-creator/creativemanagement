@@ -291,6 +291,10 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   .row2{display:flex;gap:10px;flex-wrap:wrap;}
   .row2 .field{flex:1;min-width:110px;}
   textarea#f-content{min-height:240px;resize:vertical;line-height:1.8;font-size:13.5px;}
+  #tabEditModePane{padding:10px;display:flex;flex-direction:column;}
+  .content-maximized{display:flex;flex-direction:column;flex:1;min-height:0;}
+  .content-maximized textarea#f-content{flex:1;min-height:50vh;}
+  .content-maximized .hint{display:none;}
   .modal-foot{
     display:flex;justify-content:space-between;gap:10px;padding:11px 20px;
     border-top:1px solid var(--line);
@@ -494,6 +498,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     <div class="tabs">
       <button class="tab-btn active" id="tabContentBtn" data-tab="content">文章內容</button>
       <button class="tab-btn" id="tabRecordsBtn" data-tab="records">文章履歷</button>
+      <button class="tab-btn" id="tabEditModeBtn" data-tab="editmode">編輯模式</button>
     </div>
     <div class="modal-body" id="tabContentPane">
       <div class="row2">
@@ -542,7 +547,8 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
         <label>關鍵字（以逗號分隔）</label>
         <input type="text" id="f-keywords" placeholder="例如：家族、失語、海邊">
       </div>
-      <div class="field">
+      <div id="contentFieldAnchor"></div>
+      <div class="field" id="contentFieldWrapper">
         <label>內文</label>
         <div class="font-zoom-group" style="margin-bottom:4px;">
           <button class="btn-ghost btn-sm" id="btnContentFontDecrease" type="button" aria-label="縮小內文字體">字－</button>
@@ -566,6 +572,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
         </div>
       </div>
     </div>
+    <div class="modal-body" id="tabEditModePane" style="display:none;"></div>
     <div class="modal-body resume-pane" id="tabRecordsPane" style="display:none;">
       <div class="resume-forms">
         <div class="field">
@@ -673,6 +680,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
         <button class="btn-danger" id="btnDeleteArticle" style="display:none;">刪除文章</button>
         <button class="tab-btn foot-tab-btn active" data-tab="content" id="footTabContentBtn">文章內容</button>
         <button class="tab-btn foot-tab-btn" data-tab="records" id="footTabRecordsBtn">文章履歷</button>
+        <button class="tab-btn foot-tab-btn" data-tab="editmode" id="footTabEditModeBtn">編輯模式</button>
       </div>
       <div class="right">
         <button class="btn-ghost" id="btnCancelArticle">取消</button>
@@ -765,10 +773,12 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
       <textarea id="writeModeContent" style="flex:1;width:100%;font-size:16px;resize:none;"></textarea>
       <div class="hint" id="writeModeWordCount" style="margin-top:4px;"></div>
     </div>
-    <div class="modal-foot">
-      <div style="display:flex;gap:6px;">
+    <div class="modal-foot" style="flex-wrap:wrap;">
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn-ghost btn-sm" id="btnWriteModeAddPrev">＋ 新增上一章</button>
         <button class="btn-ghost btn-sm" id="btnWriteModePrev">◀ 上一章</button>
         <button class="btn-ghost btn-sm" id="btnWriteModeNext">下一章 ▶</button>
+        <button class="btn-ghost btn-sm" id="btnWriteModeAddNext">＋ 新增下一章</button>
       </div>
       <div class="right"><button class="btn-primary" id="btnWriteModeSave">儲存</button></div>
     </div>
@@ -1324,7 +1334,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
 <script>
 (function(){
   const STORAGE_KEY = 'literary-archive-v1';
-  const APP_VERSION = '6.13';
+  const APP_VERSION = '7.5';
   const DEFAULT_VENUES = [
     {name:'聯合副刊', type:'journal'},
     {name:'自由副刊', type:'journal'},
@@ -1409,9 +1419,12 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     { v: '6.8', note: '1.批次新增旁新增「刪除」快速按鈕（批次系統內原本的刪除功能仍保留） 2.彈窗開啟時背景總表不再跟著滑動 3.新增字級調整功能（工具列全域字級、編輯文章內文字級各自獨立） 4.新增可個別隱藏「文類」「創作日期」欄位的開關（篇名維持必顯示，因總表目前唯一能開啟文章的入口）' },
     { v: '6.9', note: '手機返回鍵開啟彈窗時改為關閉彈窗，不會直接離開頁面或程式。' },
     { v: '6.10', note: '修正字級放大或畫面較窄時，「隱藏創作日期欄」等勾選框被裁切看不到的問題，改為超出寬度時自動換行顯示。' },
-    { v: '6.11', note: '重寫「功能介紹」內容：先介紹系統的檢視本質與限制，再逐一說明各按鈕用途與判斷邏輯，最後提供「該從何開始」的分岔式指引；原本總表上方常駐的排序與關鍵字搜尋提示文字，移入功能介紹說明。' },
-    { v: '6.12', note: '小說創作功能第一階段：編輯文章時，文類選為「小說」才會顯示「所屬部」「章節序」欄位；分類管理中的出版收錄欄位新增「這本書本身的投稿／出版狀態」（跟底下各章節的紀錄分開），為後續「小說檢視」畫面預作準備。' },
-    { v: '6.13', note: '小說創作功能第二階段：出版紀錄檢視下，出版收錄欄位名稱旁新增📖圖示，點入「小說檢視」可看整本書累積字數、章數，以及依「部」分組、依「章節序」排序的章節清單，也能直接編輯這本書本身的投稿／出版狀態。點章節進入「精簡寫作模式」，內文欄位最大化、可用上一章／下一章切換，切換或關閉時自動儲存目前內容。' }
+    { v: '7.0', note: '重寫「功能介紹」內容：先介紹系統的檢視本質與限制，再逐一說明各按鈕用途與判斷邏輯，最後提供「該從何開始」的分岔式指引；原本總表上方常駐的排序與關鍵字搜尋提示文字，移入功能介紹說明。' },
+    { v: '7.1', note: '小說創作功能第一階段：編輯文章時，文類選為「小說」才會顯示「所屬部」「章節序」欄位；分類管理中的出版收錄欄位新增「這本書本身的投稿／出版狀態」（跟底下各章節的紀錄分開），為後續「小說檢視」畫面預作準備。' },
+    { v: '7.2', note: '小說創作功能第二階段：出版紀錄檢視下，出版收錄欄位名稱旁新增📖圖示，點入「小說檢視」可看整本書累積字數、章數，以及依「部」分組、依「章節序」排序的章節清單，也能直接編輯這本書本身的投稿／出版狀態。點章節進入「精簡寫作模式」，內文欄位最大化、可用上一章／下一章切換，切換或關閉時自動儲存目前內容。' },
+    { v: '7.3', note: '編輯文章手風琴新增「編輯模式」分頁（在文章履歷旁，不限文類），切換後內文欄位最大化、其他欄位收起，方便小螢幕專心寫作，跟「文章內容」分頁共用同一份內文，切換分頁不會遺失內容。' },
+    { v: '7.4', note: '精簡寫作模式「上一章／下一章」旁新增「新增上一章」「新增下一章」，會自動複製本章的文類、所屬部、收錄狀態，只需輸入新篇名即可快速建立前後章節並直接進入寫作。' },
+    { v: '7.5', note: '「新增上一章／新增下一章」改為自動重整同一部底下的章節序：插入新章節時，插入點之後（含目前這章）的章節序全部自動往後遞補一位，不會再有章節序重複的問題。' }
   ];
   const DEFAULT_GENRES = ['詩','小說','散文'];
 
@@ -2348,6 +2361,67 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     openWriteMode(writeModeVenueId, flat[nextIdx]);
   }
 
+  // Quickly creates a new chapter before/after the one currently open,
+  // copying the structural settings (genre, 所屬部, and — critically — an
+  // accepted record under the SAME venue, since that's what makes an
+  // article count as "a chapter of this book" at all) so the new chapter
+  // is immediately recognized as part of the same book. Only the order
+  // number shifts ±1 from the current chapter; if that collides with an
+  // existing chapter's order, both will show the same number until
+  // manually renumbered — a minor cosmetic issue, not a data problem.
+  // Shifts every chapter in the same 部 whose order is >= fromOrder up by
+  // one, opening a gap at fromOrder for a chapter being inserted there.
+  function shiftChapterOrdersFrom(venueId, part, fromOrder){
+    getBookChapters(venueId).forEach(a=>{
+      if(a.novelPart === (part||'') && a.novelChapterOrder != null && a.novelChapterOrder >= fromOrder){
+        a.novelChapterOrder += 1;
+      }
+    });
+  }
+
+  function addAdjacentChapter(direction){
+    const current = getArticle(writeModeArticleId);
+    const venue = getVenue(writeModeVenueId);
+    if(!current || !venue) return;
+    saveCurrentWriteModeChapter();
+    showPromptModal(direction < 0 ? '新增上一章的篇名：' : '新增下一章的篇名：', '', (title)=>{
+      title = (title||'').trim();
+      if(!title) return;
+      const currentRecord = (current.records[venue.id]||[]).find(r=>r.result==='accepted');
+
+      // If the current chapter has no order set, there's nothing
+      // established to insert relative to — leave the new chapter's order
+      // blank too rather than guessing, and skip the shift entirely.
+      let newOrder = null;
+      if(current.novelChapterOrder != null){
+        newOrder = direction < 0 ? current.novelChapterOrder : current.novelChapterOrder + 1;
+        shiftChapterOrdersFrom(venue.id, current.novelPart, newOrder);
+      }
+
+      const newArticle = {
+        id: uid(), title,
+        genre: current.genre,
+        createDate: '', createLabel: '初稿', keywords: [], content: '',
+        wordCount: 0, lineCount: 0,
+        novelPart: current.novelPart || '',
+        novelChapterOrder: newOrder,
+        drafts: [],
+        records: {
+          [venue.id]: [{
+            id: uid(),
+            submitDate: currentRecord ? currentRecord.submitDate : '',
+            result: 'accepted',
+            publishDate: currentRecord ? currentRecord.publishDate : '',
+            note: ''
+          }]
+        }
+      };
+      state.articles.push(newArticle);
+      persist();
+      openWriteMode(venue.id, newArticle.id);
+    });
+  }
+
   function renderCategoryModal(){
     const body = document.getElementById('categoryModalBody');
     body.innerHTML = '';
@@ -2941,9 +3015,21 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   function switchTab(tab){
     document.getElementById('tabContentPane').style.display = tab==='content' ? 'block' : 'none';
     document.getElementById('tabRecordsPane').style.display = tab==='records' ? 'block' : 'none';
+    document.getElementById('tabEditModePane').style.display = tab==='editmode' ? 'block' : 'none';
     document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===tab));
     if(tab==='records'){
       renderResume(currentRecordsRef());
+    }
+    // 編輯模式 reuses the SAME #f-content textarea (moved via appendChild,
+    // not duplicated) so there's no separate copy of the text to keep in
+    // sync — whichever pane currently holds it is simply where typing goes.
+    const wrapper = document.getElementById('contentFieldWrapper');
+    if(tab==='editmode'){
+      document.getElementById('tabEditModePane').appendChild(wrapper);
+      wrapper.classList.add('content-maximized');
+    } else {
+      document.getElementById('contentFieldAnchor').insertAdjacentElement('afterend', wrapper);
+      wrapper.classList.remove('content-maximized');
     }
     const modalEl = document.querySelector('#articleOverlay .modal');
     if(modalEl) modalEl.scrollTop = 0;
@@ -5239,6 +5325,8 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   };
   document.getElementById('btnWriteModePrev').onclick = () => writeModeGoTo(-1);
   document.getElementById('btnWriteModeNext').onclick = () => writeModeGoTo(1);
+  document.getElementById('btnWriteModeAddPrev').onclick = () => addAdjacentChapter(-1);
+  document.getElementById('btnWriteModeAddNext').onclick = () => addAdjacentChapter(1);
   document.getElementById('btnFontDecrease').onclick = () => adjustUiZoom(-10);
   document.getElementById('btnFontIncrease').onclick = () => adjustUiZoom(10);
   document.getElementById('btnContentFontDecrease').onclick = () => adjustContentFontSize(-2);
@@ -5386,8 +5474,10 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   });
   document.getElementById('tabContentBtn').onclick = () => switchTab('content');
   document.getElementById('tabRecordsBtn').onclick = () => switchTab('records');
+  document.getElementById('tabEditModeBtn').onclick = () => switchTab('editmode');
   document.getElementById('footTabContentBtn').onclick = () => switchTab('content');
   document.getElementById('footTabRecordsBtn').onclick = () => switchTab('records');
+  document.getElementById('footTabEditModeBtn').onclick = () => switchTab('editmode');
   document.getElementById('btnAddJournalRecord').onclick = () => addCategoryRecord('journal');
   document.getElementById('btnAddAwardRecord').onclick = () => addCategoryRecord('award');
   document.getElementById('btnAddPublicationRecord').onclick = () => addCategoryRecord('publication');
