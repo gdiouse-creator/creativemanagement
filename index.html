@@ -513,6 +513,16 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
           </div>
         </div>
       </div>
+      <div class="row2" id="novelFieldsRow" style="display:none;">
+        <div class="field" style="max-width:150px;">
+          <label>所屬部（選填）</label>
+          <input type="text" id="f-novelPart" placeholder="例如：第一部">
+        </div>
+        <div class="field" style="max-width:110px;">
+          <label>章節序（選填）</label>
+          <input type="number" id="f-novelChapterOrder" placeholder="例如：1">
+        </div>
+      </div>
       <div class="field">
         <button type="button" class="btn-ghost btn-sm" id="btnToggleDraftForm">＋ 新增稿件版本（選填，記錄初稿以外的其他修訂日期，如二稿、定稿）</button>
         <div id="draftFormBox" class="draft-toggle-box" style="display:none;">
@@ -703,6 +713,64 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
         <button class="btn-ghost" id="btnCancelPasteImport">取消</button>
         <button class="btn-primary" id="btnConfirmPasteImport" disabled>建立文章</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Novel View Modal (小說檢視) -->
+<div class="overlay" id="novelViewOverlay">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-head">
+      <div>
+        <h2 id="novelViewTitle">小說檢視</h2>
+        <div class="sub" id="novelViewStats"></div>
+      </div>
+      <button class="close-x" id="closeNovelViewModal">✕</button>
+    </div>
+    <div class="modal-body" style="max-height:70vh;overflow:auto;">
+      <div class="field">
+        <label>這本書本身的投稿／出版狀態（跟底下各章節的紀錄分開）</label>
+        <div class="row2">
+          <div class="field" style="max-width:130px;"><label>投稿日期</label><input type="date" id="nv-submit-date"></div>
+          <div class="field" style="max-width:110px;"><label>結果</label>
+            <select id="nv-submit-result">
+              <option value="pending">還沒有結果</option>
+              <option value="accepted">已發表／得獎</option>
+              <option value="rejected">婉拒／落選</option>
+            </select>
+          </div>
+          <div class="field" style="max-width:130px;"><label>出版日期</label><input type="date" id="nv-publish-date"></div>
+        </div>
+      </div>
+      <div id="novelViewChapterList" style="margin-top:10px;"></div>
+    </div>
+    <div class="modal-foot">
+      <div></div>
+      <div class="right"><button class="btn-ghost" id="btnCloseNovelView">關閉</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Write Mode Modal (精簡寫作模式) -->
+<div class="overlay" id="writeModeOverlay">
+  <div class="modal" style="max-width:800px;">
+    <div class="modal-head">
+      <div>
+        <div class="sub" id="writeModeBook"></div>
+        <h2 id="writeModeChapterTitle" style="font-size:16px;"></h2>
+      </div>
+      <button class="close-x" id="closeWriteModeModal">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex;flex-direction:column;height:70vh;padding:10px;">
+      <textarea id="writeModeContent" style="flex:1;width:100%;font-size:16px;resize:none;"></textarea>
+      <div class="hint" id="writeModeWordCount" style="margin-top:4px;"></div>
+    </div>
+    <div class="modal-foot">
+      <div style="display:flex;gap:6px;">
+        <button class="btn-ghost btn-sm" id="btnWriteModePrev">◀ 上一章</button>
+        <button class="btn-ghost btn-sm" id="btnWriteModeNext">下一章 ▶</button>
+      </div>
+      <div class="right"><button class="btn-primary" id="btnWriteModeSave">儲存</button></div>
     </div>
   </div>
 </div>
@@ -1256,7 +1324,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
 <script>
 (function(){
   const STORAGE_KEY = 'literary-archive-v1';
-  const APP_VERSION = '6.11';
+  const APP_VERSION = '6.13';
   const DEFAULT_VENUES = [
     {name:'聯合副刊', type:'journal'},
     {name:'自由副刊', type:'journal'},
@@ -1341,7 +1409,9 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     { v: '6.8', note: '1.批次新增旁新增「刪除」快速按鈕（批次系統內原本的刪除功能仍保留） 2.彈窗開啟時背景總表不再跟著滑動 3.新增字級調整功能（工具列全域字級、編輯文章內文字級各自獨立） 4.新增可個別隱藏「文類」「創作日期」欄位的開關（篇名維持必顯示，因總表目前唯一能開啟文章的入口）' },
     { v: '6.9', note: '手機返回鍵開啟彈窗時改為關閉彈窗，不會直接離開頁面或程式。' },
     { v: '6.10', note: '修正字級放大或畫面較窄時，「隱藏創作日期欄」等勾選框被裁切看不到的問題，改為超出寬度時自動換行顯示。' },
-    { v: '6.11', note: '重寫「功能介紹」內容：先介紹系統的檢視本質與限制，再逐一說明各按鈕用途與判斷邏輯，最後提供「該從何開始」的分岔式指引；原本總表上方常駐的排序與關鍵字搜尋提示文字，移入功能介紹說明。' }
+    { v: '6.11', note: '重寫「功能介紹」內容：先介紹系統的檢視本質與限制，再逐一說明各按鈕用途與判斷邏輯，最後提供「該從何開始」的分岔式指引；原本總表上方常駐的排序與關鍵字搜尋提示文字，移入功能介紹說明。' },
+    { v: '6.12', note: '小說創作功能第一階段：編輯文章時，文類選為「小說」才會顯示「所屬部」「章節序」欄位；分類管理中的出版收錄欄位新增「這本書本身的投稿／出版狀態」（跟底下各章節的紀錄分開），為後續「小說檢視」畫面預作準備。' },
+    { v: '6.13', note: '小說創作功能第二階段：出版紀錄檢視下，出版收錄欄位名稱旁新增📖圖示，點入「小說檢視」可看整本書累積字數、章數，以及依「部」分組、依「章節序」排序的章節清單，也能直接編輯這本書本身的投稿／出版狀態。點章節進入「精簡寫作模式」，內文欄位最大化、可用上一章／下一章切換，切換或關閉時自動儲存目前內容。' }
   ];
   const DEFAULT_GENRES = ['詩','小說','散文'];
 
@@ -1799,8 +1869,21 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
         th.className = 'venue-th sortable';
         const key = 'venue:' + v.id;
         const counts = venueCounts(v.id);
-        th.textContent = counts.total > 0 ? `${v.name}(${counts.total})` : v.name;
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = counts.total > 0 ? `${v.name}(${counts.total})` : v.name;
+        th.appendChild(nameSpan);
         th.title = `已刊登${counts.accepted}篇・婉拒${counts.rejected}篇・還沒有結果${counts.pending}篇`;
+        if(v.type === 'publication'){
+          const novelBtn = document.createElement('span');
+          novelBtn.textContent = '📖';
+          novelBtn.title = '小說檢視';
+          novelBtn.style.cssText = 'margin-left:4px;cursor:pointer;';
+          novelBtn.onclick = (e) => {
+            e.stopPropagation();
+            openNovelView(v.id);
+          };
+          th.appendChild(novelBtn);
+        }
         if(sortKey === key) th.innerHTML += `<span class="sort-arrow">${sortDir==='asc'?'▲':'▼'}</span>`;
         th.onclick = () => {
           if(sortKey === key) sortDir = sortDir==='asc' ? 'desc' : 'asc';
@@ -2091,6 +2174,180 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     });
   }
 
+  // ---------- novel view (小說檢視) + write mode (精簡寫作模式) ----------
+  // A "chapter" is any article with an accepted record under this
+  // publication venue — reuses the EXISTING 出版收錄 relationship rather
+  // than a new "belongs to this book" field, per Ger's own observation.
+  function getBookChapters(venueId){
+    return state.articles.filter(a => (a.records[venueId]||[]).some(r=>r.result==='accepted'));
+  }
+
+  function groupChaptersByPart(chapters){
+    const groups = {};
+    const order = [];
+    chapters.forEach(a=>{
+      const part = a.novelPart || '未分部';
+      if(!groups[part]){ groups[part] = []; order.push(part); }
+      groups[part].push(a);
+    });
+    order.forEach(part=>{
+      groups[part].sort((a,b)=>{
+        const oa = a.novelChapterOrder, ob = b.novelChapterOrder;
+        if(oa == null && ob == null) return 0;
+        if(oa == null) return 1;
+        if(ob == null) return -1;
+        return oa - ob;
+      });
+    });
+    // "未分部" last if there are other named parts, since an unsorted
+    // catch-all reads more naturally at the end than mixed into the middle
+    order.sort((a,b)=>{
+      if(a==='未分部') return 1;
+      if(b==='未分部') return -1;
+      return 0;
+    });
+    return {groups, order};
+  }
+
+  function flattenChapterOrder(venueId){
+    const {groups, order} = groupChaptersByPart(getBookChapters(venueId));
+    const flat = [];
+    order.forEach(part => groups[part].forEach(a => flat.push(a.id)));
+    return flat;
+  }
+
+  let currentNovelViewVenueId = null;
+
+  function openNovelView(venueId){
+    currentNovelViewVenueId = venueId;
+    const v = getVenue(venueId);
+    if(!v) return;
+    document.getElementById('novelViewTitle').textContent = '小說檢視：' + v.name;
+
+    const bs = v.bookSubmission || {};
+    document.getElementById('nv-submit-date').value = bs.submitDate || '';
+    document.getElementById('nv-submit-result').value = bs.result || 'pending';
+    document.getElementById('nv-publish-date').value = bs.publishDate || '';
+
+    renderNovelViewChapterList();
+    document.getElementById('novelViewOverlay').classList.add('show');
+  }
+
+  function closeNovelViewModal(){
+    document.getElementById('novelViewOverlay').classList.remove('show');
+  }
+
+  function saveNovelViewBookSubmission(){
+    const v = getVenue(currentNovelViewVenueId);
+    if(!v) return;
+    v.bookSubmission = {
+      submitDate: document.getElementById('nv-submit-date').value,
+      result: document.getElementById('nv-submit-result').value,
+      publishDate: document.getElementById('nv-publish-date').value
+    };
+    persist();
+  }
+
+  function renderNovelViewChapterList(){
+    const venueId = currentNovelViewVenueId;
+    const chapters = getBookChapters(venueId);
+    const totalWords = chapters.reduce((sum,a)=> sum + (a.wordCount || countWords(a.content)), 0);
+    document.getElementById('novelViewStats').textContent = `共 ${chapters.length} 章，累積字數 ${totalWords}`;
+
+    const {groups, order} = groupChaptersByPart(chapters);
+    const box = document.getElementById('novelViewChapterList');
+    box.innerHTML = '';
+    if(chapters.length === 0){
+      box.innerHTML = '<div class="rec-empty">這本書底下還沒有已發表／得獎的章節</div>';
+      return;
+    }
+    order.forEach(part=>{
+      const partHead = document.createElement('div');
+      partHead.style.cssText = 'font-weight:700;font-size:12.5px;margin-top:8px;';
+      partHead.textContent = part;
+      box.appendChild(partHead);
+      groups[part].forEach(a=>{
+        const row = document.createElement('div');
+        row.className = 'ov-item';
+        const titleBtn = document.createElement('button');
+        titleBtn.className = 'title-link';
+        titleBtn.style.cssText = 'font-size:12.5px;padding:0;';
+        const orderLabel = a.novelChapterOrder != null ? `第${a.novelChapterOrder}章・` : '';
+        titleBtn.textContent = orderLabel + a.title;
+        titleBtn.onclick = () => {
+          closeNovelViewModal();
+          openWriteMode(venueId, a.id);
+        };
+        const meta = document.createElement('span');
+        meta.className = 'ov-meta';
+        meta.textContent = (a.wordCount || countWords(a.content)) + ' 字';
+        row.appendChild(titleBtn);
+        row.appendChild(meta);
+        box.appendChild(row);
+      });
+    });
+  }
+
+  let writeModeVenueId = null;
+  let writeModeArticleId = null;
+
+  function openWriteMode(venueId, articleId){
+    writeModeVenueId = venueId;
+    writeModeArticleId = articleId;
+    const a = getArticle(articleId);
+    const v = getVenue(venueId);
+    if(!a || !v) return;
+    document.getElementById('writeModeBook').textContent = v.name;
+    const orderLabel = a.novelChapterOrder != null ? `第${a.novelChapterOrder}章・` : '';
+    document.getElementById('writeModeChapterTitle').textContent = orderLabel + a.title;
+    document.getElementById('writeModeContent').value = a.content || '';
+    updateWriteModeWordCount();
+    updateWriteModeNavButtons();
+    document.getElementById('writeModeOverlay').classList.add('show');
+  }
+
+  function updateWriteModeWordCount(){
+    const content = document.getElementById('writeModeContent').value;
+    document.getElementById('writeModeWordCount').textContent = `${countWords(content)} 字・${countLines(content)} 行`;
+  }
+
+  function updateWriteModeNavButtons(){
+    const flat = flattenChapterOrder(writeModeVenueId);
+    const idx = flat.indexOf(writeModeArticleId);
+    document.getElementById('btnWriteModePrev').disabled = idx <= 0;
+    document.getElementById('btnWriteModeNext').disabled = idx === -1 || idx >= flat.length - 1;
+  }
+
+  // Saves silently (no modal-closing side effect) — used both by the
+  // explicit 儲存 button and automatically before closing or switching
+  // chapters, since losing written text is the worst possible outcome in
+  // a writing-focused screen.
+  function saveCurrentWriteModeChapter(){
+    if(!writeModeArticleId) return;
+    const a = getArticle(writeModeArticleId);
+    if(!a) return;
+    const content = document.getElementById('writeModeContent').value;
+    a.content = content;
+    a.wordCount = countWords(content);
+    a.lineCount = countLines(content);
+    persist();
+  }
+
+  function closeWriteModeModal(){
+    saveCurrentWriteModeChapter();
+    document.getElementById('writeModeOverlay').classList.remove('show');
+    render();
+  }
+
+  function writeModeGoTo(delta){
+    saveCurrentWriteModeChapter();
+    const flat = flattenChapterOrder(writeModeVenueId);
+    const idx = flat.indexOf(writeModeArticleId);
+    const nextIdx = idx + delta;
+    if(nextIdx < 0 || nextIdx >= flat.length) return;
+    openWriteMode(writeModeVenueId, flat[nextIdx]);
+  }
+
   function renderCategoryModal(){
     const body = document.getElementById('categoryModalBody');
     body.innerHTML = '';
@@ -2175,6 +2432,41 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
           });
         }
         vDetails.appendChild(listBox);
+
+        if(v.type === 'publication'){
+          const bookBox = document.createElement('div');
+          bookBox.style.cssText = 'margin-top:8px;padding:8px;background:var(--paper-deep);border-radius:6px;';
+          bookBox.innerHTML = `
+            <div style="font-size:11.5px;color:var(--ink-soft);margin-bottom:4px;">這本書本身的投稿／出版狀態（選填，跟底下各章節的紀錄分開）</div>
+            <div class="row2">
+              <div class="field" style="max-width:130px;"><label>投稿日期</label><input type="date" class="book-submit-date"></div>
+              <div class="field" style="max-width:110px;"><label>結果</label>
+                <select class="book-submit-result">
+                  <option value="pending">還沒有結果</option>
+                  <option value="accepted">已發表／得獎</option>
+                  <option value="rejected">婉拒／落選</option>
+                </select>
+              </div>
+              <div class="field" style="max-width:130px;"><label>出版日期</label><input type="date" class="book-publish-date"></div>
+            </div>
+          `;
+          const bs = v.bookSubmission || {};
+          bookBox.querySelector('.book-submit-date').value = bs.submitDate || '';
+          bookBox.querySelector('.book-submit-result').value = bs.result || 'pending';
+          bookBox.querySelector('.book-publish-date').value = bs.publishDate || '';
+          const saveBookSubmission = () => {
+            v.bookSubmission = {
+              submitDate: bookBox.querySelector('.book-submit-date').value,
+              result: bookBox.querySelector('.book-submit-result').value,
+              publishDate: bookBox.querySelector('.book-publish-date').value
+            };
+            persist();
+          };
+          bookBox.querySelector('.book-submit-date').addEventListener('change', saveBookSubmission);
+          bookBox.querySelector('.book-submit-result').addEventListener('change', saveBookSubmission);
+          bookBox.querySelector('.book-publish-date').addEventListener('change', saveBookSubmission);
+          vDetails.appendChild(bookBox);
+        }
 
         const moveWrap = document.createElement('div');
         moveWrap.style.cssText = 'display:flex;align-items:center;gap:6px;margin-top:6px;';
@@ -2592,6 +2884,9 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     populateGenreSelect(a.genre || '詩');
     document.getElementById('f-title').value = a.title || '';
     document.getElementById('f-createDate').value = a.createDate || '';
+    document.getElementById('f-novelPart').value = a.novelPart || '';
+    document.getElementById('f-novelChapterOrder').value = (a.novelChapterOrder != null) ? a.novelChapterOrder : '';
+    updateNovelFieldsVisibility();
     document.getElementById('f-keywords').value = (a.keywords||[]).join('、');
     document.getElementById('f-content').value = a.content || '';
     document.getElementById('f-wordCount').value = (a.wordCount != null) ? a.wordCount : countWords(a.content);
@@ -2620,6 +2915,12 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     const content = document.getElementById('f-content').value;
     document.getElementById('f-wordCount').value = countWords(content);
     document.getElementById('f-lineCount').value = countLines(content);
+  }
+
+  function updateNovelFieldsVisibility(){
+    const row = document.getElementById('novelFieldsRow');
+    const genre = document.getElementById('f-genre').value;
+    row.style.display = genre === '小說' ? 'flex' : 'none';
   }
 
   function populateGenreSelect(selected){
@@ -3402,15 +3703,20 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     const wordCount = parseInt(document.getElementById('f-wordCount').value, 10) || 0;
     const lineCount = parseInt(document.getElementById('f-lineCount').value, 10) || 0;
     const location = document.getElementById('f-location').value.trim();
+    const novelPart = genre === '小說' ? document.getElementById('f-novelPart').value.trim() : '';
+    const novelChapterOrderRaw = genre === '小說' ? document.getElementById('f-novelChapterOrder').value : '';
+    const novelChapterOrder = novelChapterOrderRaw === '' ? null : (parseInt(novelChapterOrderRaw, 10) || null);
 
     if(editingArticleId){
       const a = getArticle(editingArticleId);
       a.title = title; a.genre = genre; a.createDate = createDate; a.createLabel = createLabel; a.keywords = keywords; a.content = content;
       a.wordCount = wordCount; a.lineCount = lineCount; a.location = location;
+      a.novelPart = novelPart; a.novelChapterOrder = novelChapterOrder;
       a.needsReview = false;
     } else {
       state.articles.push({
         id: uid(), title, genre, createDate, createLabel, keywords, content, wordCount, lineCount, location,
+        novelPart, novelChapterOrder,
         records: newArticleDraft.records, drafts: newArticleDraft.drafts
       });
       newArticleDraft = { records: {}, drafts: [] };
@@ -4914,6 +5220,25 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   };
   document.getElementById('btnInvertSelection').onclick = invertSelection;
   document.getElementById('btnQuickDelete').onclick = batchDeleteSelected;
+  document.getElementById('closeNovelViewModal').onclick = closeNovelViewModal;
+  document.getElementById('btnCloseNovelView').onclick = closeNovelViewModal;
+  document.getElementById('novelViewOverlay').addEventListener('click', (e)=>{
+    if(e.target.id === 'novelViewOverlay') closeNovelViewModal();
+  });
+  document.getElementById('nv-submit-date').addEventListener('change', saveNovelViewBookSubmission);
+  document.getElementById('nv-submit-result').addEventListener('change', saveNovelViewBookSubmission);
+  document.getElementById('nv-publish-date').addEventListener('change', saveNovelViewBookSubmission);
+  document.getElementById('closeWriteModeModal').onclick = closeWriteModeModal;
+  document.getElementById('writeModeOverlay').addEventListener('click', (e)=>{
+    if(e.target.id === 'writeModeOverlay') closeWriteModeModal();
+  });
+  document.getElementById('writeModeContent').addEventListener('input', updateWriteModeWordCount);
+  document.getElementById('btnWriteModeSave').onclick = () => {
+    saveCurrentWriteModeChapter();
+    showInfoModal('已儲存。');
+  };
+  document.getElementById('btnWriteModePrev').onclick = () => writeModeGoTo(-1);
+  document.getElementById('btnWriteModeNext').onclick = () => writeModeGoTo(1);
   document.getElementById('btnFontDecrease').onclick = () => adjustUiZoom(-10);
   document.getElementById('btnFontIncrease').onclick = () => adjustUiZoom(10);
   document.getElementById('btnContentFontDecrease').onclick = () => adjustContentFontSize(-2);
@@ -5054,8 +5379,10 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
         if(!name){ populateGenreSelect(state.genres[0]); return; }
         if(!state.genres.includes(name)){ state.genres.push(name); persist(); }
         populateGenreSelect(name);
+        updateNovelFieldsVisibility();
       });
     }
+    updateNovelFieldsVisibility();
   });
   document.getElementById('tabContentBtn').onclick = () => switchTab('content');
   document.getElementById('tabRecordsBtn').onclick = () => switchTab('records');
@@ -5200,7 +5527,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     if(e.target.id === 'batchCategoryOverlay') closeBatchCategoryModal();
   });
   document.addEventListener('keydown', (e)=>{
-    if(e.key === 'Escape'){ closeArticleModal(); closeBatchModal(); closeCategoryModal(); closeBatchCategoryModal(); closeWelcomeModal(); closeImportWizard(); closeMergeArticlesModal(); document.getElementById('colorSettingsOverlay').classList.remove('show'); document.getElementById('batchSystemOverlay').classList.remove('show'); closeBatchGenreModal(); closeBatchSelectModal(); closeBatchKeywordModal(); closeTxtImportModal(); closePasteImportModal(); }
+    if(e.key === 'Escape'){ closeArticleModal(); closeBatchModal(); closeCategoryModal(); closeBatchCategoryModal(); closeWelcomeModal(); closeImportWizard(); closeMergeArticlesModal(); document.getElementById('colorSettingsOverlay').classList.remove('show'); document.getElementById('batchSystemOverlay').classList.remove('show'); closeBatchGenreModal(); closeBatchSelectModal(); closeBatchKeywordModal(); closeTxtImportModal(); closePasteImportModal(); closeNovelViewModal(); closeWriteModeModal(); }
   });
 
   document.getElementById('closeWelcomeModal').onclick = closeWelcomeModal;
