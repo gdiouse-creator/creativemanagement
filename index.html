@@ -1334,7 +1334,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
 <script>
 (function(){
   const STORAGE_KEY = 'literary-archive-v1';
-  const APP_VERSION = '7.5';
+  const APP_VERSION = '7.6';
   const DEFAULT_VENUES = [
     {name:'聯合副刊', type:'journal'},
     {name:'自由副刊', type:'journal'},
@@ -1424,7 +1424,8 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     { v: '7.2', note: '小說創作功能第二階段：出版紀錄檢視下，出版收錄欄位名稱旁新增📖圖示，點入「小說檢視」可看整本書累積字數、章數，以及依「部」分組、依「章節序」排序的章節清單，也能直接編輯這本書本身的投稿／出版狀態。點章節進入「精簡寫作模式」，內文欄位最大化、可用上一章／下一章切換，切換或關閉時自動儲存目前內容。' },
     { v: '7.3', note: '編輯文章手風琴新增「編輯模式」分頁（在文章履歷旁，不限文類），切換後內文欄位最大化、其他欄位收起，方便小螢幕專心寫作，跟「文章內容」分頁共用同一份內文，切換分頁不會遺失內容。' },
     { v: '7.4', note: '精簡寫作模式「上一章／下一章」旁新增「新增上一章」「新增下一章」，會自動複製本章的文類、所屬部、收錄狀態，只需輸入新篇名即可快速建立前後章節並直接進入寫作。' },
-    { v: '7.5', note: '「新增上一章／新增下一章」改為自動重整同一部底下的章節序：插入新章節時，插入點之後（含目前這章）的章節序全部自動往後遞補一位，不會再有章節序重複的問題。' }
+    { v: '7.5', note: '「新增上一章／新增下一章」改為自動重整同一部底下的章節序：插入新章節時，插入點之後（含目前這章）的章節序全部自動往後遞補一位，不會再有章節序重複的問題。' },
+    { v: '7.6', note: '用「新增上一章／新增下一章」建立的新章節，補上跟新匯入文章一樣的置頂與標題反白提醒，回到總表時不會因為資料多而找不到剛新增的章節。' }
   ];
   const DEFAULT_GENRES = ['詩','小說','散文'];
 
@@ -2417,6 +2418,11 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
         }
       };
       state.articles.push(newArticle);
+      // Same pin-to-top + highlight treatment as newly-imported articles —
+      // otherwise a freshly-created chapter is easy to lose among however
+      // many rows the main table already has.
+      if(!state.recentImportIds) state.recentImportIds = [];
+      state.recentImportIds.push(newArticle.id);
       persist();
       openWriteMode(venue.id, newArticle.id);
     });
