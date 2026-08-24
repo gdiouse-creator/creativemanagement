@@ -556,7 +556,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
           <button class="btn-ghost btn-sm" id="btnContentFontIncrease" type="button" aria-label="放大內文字體">字＋</button>
         </div>
         <textarea id="f-content" placeholder="貼上或輸入文章全文…"></textarea>
-        <div class="hint">建議超過 5000 字時另外儲存檔案，自行上傳雲端備份，並可於備註欄貼上連結自我標註即可。</div>
+        <div class="hint">建議超過 5000 字時另外儲存檔案，自行上傳雲端備份，並可於備註欄貼上連結自我標註即可。Excel 單一儲存格上限為 32,767 字，超過將無法匯出這篇文章，請考慮拆分成多篇（例如小說可拆成多個章節）。</div>
       </div>
       <div class="row2">
         <div class="field">
@@ -1334,7 +1334,7 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
 <script>
 (function(){
   const STORAGE_KEY = 'literary-archive-v1';
-  const APP_VERSION = '7.6';
+  const APP_VERSION = '7.7';
   const DEFAULT_VENUES = [
     {name:'聯合副刊', type:'journal'},
     {name:'自由副刊', type:'journal'},
@@ -1425,7 +1425,8 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     { v: '7.3', note: '編輯文章手風琴新增「編輯模式」分頁（在文章履歷旁，不限文類），切換後內文欄位最大化、其他欄位收起，方便小螢幕專心寫作，跟「文章內容」分頁共用同一份內文，切換分頁不會遺失內容。' },
     { v: '7.4', note: '精簡寫作模式「上一章／下一章」旁新增「新增上一章」「新增下一章」，會自動複製本章的文類、所屬部、收錄狀態，只需輸入新篇名即可快速建立前後章節並直接進入寫作。' },
     { v: '7.5', note: '「新增上一章／新增下一章」改為自動重整同一部底下的章節序：插入新章節時，插入點之後（含目前這章）的章節序全部自動往後遞補一位，不會再有章節序重複的問題。' },
-    { v: '7.6', note: '用「新增上一章／新增下一章」建立的新章節，補上跟新匯入文章一樣的置頂與標題反白提醒，回到總表時不會因為資料多而找不到剛新增的章節。' }
+    { v: '7.6', note: '用「新增上一章／新增下一章」建立的新章節，補上跟新匯入文章一樣的置頂與標題反白提醒，回到總表時不會因為資料多而找不到剛新增的章節。' },
+    { v: '7.7', note: '修正重大匯出風險：Excel 單一儲存格上限為 32,767 字，若有文章內文超過這個上限，原本會在匯出時整個失敗、不會產生任何檔案、也不會顯示任何錯誤訊息。現在匯出前會先檢查並明確列出超過上限的文章篇名字數，內文欄位下方也加註了這個上限提醒。' }
   ];
   const DEFAULT_GENRES = ['詩','小說','散文'];
 
@@ -3973,9 +3974,28 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
   // table) so the file is genuinely usable in Excel/Sheets on its own:
   // one row per article, one row per submission/award/publication record,
   // one row per draft-version milestone.
+  // Excel's per-cell limit is a hard 32,767 characters (confirmed directly
+  // against the embedded SheetJS library, which throws rather than
+  // truncating). Without this check, exceeding it would throw INSIDE
+  // XLSX.writeFile with no try/catch anywhere — the export would silently
+  // produce no file at all, with no error shown. This check happens BEFORE
+  // attempting the write so the user gets a clear, actionable message
+  // naming exactly which articles are the problem, instead of a mysterious
+  // do-nothing button.
+  const EXCEL_CELL_CHAR_LIMIT = 32767;
+  function findOverlongArticles(){
+    return state.articles.filter(a => (a.content||'').length > EXCEL_CELL_CHAR_LIMIT);
+  }
+
   function exportExcel(){
     if(typeof XLSX === 'undefined'){
       showInfoModal('Excel 功能載入異常，請重新整理頁面或改用其他瀏覽器再試一次。');
+      return;
+    }
+    const overlong = findOverlongArticles();
+    if(overlong.length > 0){
+      const list = overlong.map(a => `「${a.title}」（${(a.content||'').length} 字）`).join('、');
+      showInfoModal(`匯出失敗：Excel 單一儲存格最多只能容納 32,767 字，以下文章的內文已超過這個上限，請先縮短內容或拆分成多篇（例如小說可以拆成多個章節）後再重新匯出：${list}`);
       return;
     }
     const rows = [];
@@ -4030,7 +4050,12 @@ return this.parent.children[i-1]},XMLNode.prototype.next=function(){var i;if(i=t
     XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(venueRows.concat(categoryListRows)), '欄位設定');
 
     const stamp = new Date().toISOString().slice(0,10);
-    XLSX.writeFile(wb, `狂作－文學創作管理系統-v${APP_VERSION}-${stamp}.xlsx`);
+    try{
+      XLSX.writeFile(wb, `狂作－文學創作管理系統-v${APP_VERSION}-${stamp}.xlsx`);
+    } catch(err){
+      showInfoModal('匯出失敗，發生未預期的錯誤：' + ((err && err.message) || String(err)) + '。請截圖這則訊息並回報，資料目前仍完整保留在系統內，尚未遺失。');
+      return;
+    }
     excelUpToDate = true;
     updateExcelReminder();
     if(state.recentImportIds && state.recentImportIds.length > 0){
