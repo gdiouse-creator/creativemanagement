@@ -250,6 +250,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   .rec-row{display:flex;align-items:center;gap:4px;font-size:11.2px;line-height:1.5;color:var(--ink-soft);white-space:nowrap;}
   .rec-row .dot{flex:none;}
   .venue-empty{color:var(--ink-faint);font-size:13px;}
+  tr.row-hidden-article td{opacity:.55;}
   tr.row-recent-import{background:#FBF3D9;}
   tr.row-recent-import:hover{background:#F7EBC0;}
   .title-recent-import{color:#8a6800;font-weight:700;text-decoration:underline wavy var(--pending-amber);text-underline-offset:2px;}
@@ -477,6 +478,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       <label class="compact-toggle"><input type="checkbox" id="compactModeToggle" checked> 精簡顯示</label>
       <label class="compact-toggle"><input type="checkbox" id="hideGenreColToggle"> 隱藏文類欄</label>
       <label class="compact-toggle"><input type="checkbox" id="hideDateColToggle"> 隱藏創作日期欄</label>
+      <label class="compact-toggle"><input type="checkbox" id="showHiddenToggle"> 顯示隱藏文章</label>
     </div>
   </div>
 
@@ -561,6 +563,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       <div class="field">
         <label>關鍵字（以逗號分隔）</label>
         <input type="text" id="f-keywords" placeholder="例如：家族、失語、海邊">
+      </div>
+      <div class="field">
+        <label class="compact-toggle"><input type="checkbox" id="f-hidden"> 隱藏此文章（不出現在總表、搜尋與統計；勾選工具列「顯示隱藏文章」可再看到）</label>
       </div>
       <div id="contentFieldAnchor"></div>
       <div class="field" id="contentFieldWrapper">
@@ -1118,7 +1123,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           ・<b>批次新增</b>：一次建立多篇。<br>
           ・<b>刪除（已選 N 篇）</b>：直接對目前勾選的文章刪除；「批次系統」裡也有同樣的刪除功能，兩處入口，方便您勾選很多篇時就近找到。<br>
           ・<b>合併項目</b>：把重複或誤植的文章合併成一篇，需要先勾選至少 2 篇。<br>
-          ・<b>批次系統</b>：收納以下這些功能，多數需要先勾選文章才能用——改分類、改文類、重算字數行數、增刪關鍵字、批次選取（依新匯入的／同文類／某分類／某時間段／字數行數範圍快速勾選）；<b>全本導入</b>可以貼上整份稿件，依「第○章」或「＼」開頭自動切分成多篇章節，切分結果可預覽、取消勾選誤判項目，能批次套用文類、創作日期、關鍵字、所屬部，並指定要對應到哪個出版品；<b>批次匯出</b>可以把已選文章匯出成純文字檔（適合投稿附件，同一本小說的章節會自動合併成一個檔案）、Excel（可勾選要匯出的欄位）、或 PDF（透過瀏覽器列印功能，不需額外字型，中文顯示保證正確）。<br>
+          ・<b>批次系統</b>：收納以下這些功能，多數需要先勾選文章才能用——改分類、改文類、重算字數行數、增刪關鍵字、批次選取（依新匯入的／同文類／某分類／某時間段／字數行數範圍快速勾選）、<b>批次隱藏／取消隱藏</b>（把已選文章從總表收起來，或放回來）；<b>全本導入</b>可以貼上整份稿件，依「第○章」或「＼」開頭自動切分成多篇章節，切分結果可預覽、取消勾選誤判項目，能批次套用文類、創作日期、關鍵字、所屬部，並指定要對應到哪個出版品；<b>批次匯出</b>可以把已選文章匯出成純文字檔（適合投稿附件，同一本小說的章節會自動合併成一個檔案）、Excel（可勾選要匯出的欄位）、或 PDF（透過瀏覽器列印功能，不需額外字型，中文顯示保證正確）。<br>
           ・<b>反向選擇／清除選擇</b>：反向選擇把目前的勾選狀態整個反過來；清除選擇一次取消全部勾選。</div>
 
           <div style="margin-top:8px;"><b>小說創作功能</b><br>
@@ -1129,12 +1134,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           <div style="margin-top:8px;"><b>篩選與檢視</b><br>
           ・<b>全部欄位／投稿狀況／得獎統計／出版紀錄</b>：切換要看哪一種分類的細節；切到分類檢視時，欄位標題會顯示目前累積的投稿／得獎數字，滑鼠移上去可看完整的已刊登／婉拒／還沒有結果細項。點擊刊物／獎項欄名稱，可以依照「已發表／得獎 › 婉拒／落選 › 還沒有結果 › 無作為」排序，方便快速看出哪些欄位還沒處理。<br>
           ・<b>精簡顯示／隱藏文類欄／隱藏創作日期欄</b>：精簡顯示只留必要欄位；後兩者可以個別關掉這兩欄，讓手機畫面不會太擠（篇名欄目前是唯一能點進文章編輯的入口，所以沒有提供隱藏）。<br>
+          ・<b>顯示隱藏文章</b>：被隱藏的文章不會出現在總表、搜尋、統計、小說檢視與分類管理；勾選後會以半透明加🙈顯示。注意：隱藏只是畫面上收起來，資料仍以明文存在這個瀏覽器裡，匯出的 Excel 也會包含隱藏文章（「隱藏」欄標示「是」），純文字／PDF 批次匯出則只會匯出你選到的文章，並不是加密。<br>
           ・<b>搜尋框</b>：可查篇名或關鍵字，就算關鍵字欄位本身被隱藏了，也一樣查得到。<br>
           ・<b>分類管理</b>：新增、刪除、搬移欄位，也能自訂第一層分類，不只發表刊物、文學獎、出版收錄三種。</div>
 
           <div style="margin-top:8px;"><b>個人化設定</b><br>
           ・<b>顏色設定</b>：自訂系統底色、表框顏色、框線顏色，也有幾組配色一鍵套用。<br>
           ・<b>字－ 100% 字＋</b>：調整整個系統畫面的文字大小；編輯文章畫面裡另外有一組只調整內文欄位字級的，兩者互不影響，各自記住您上次的設定。</div>
+
+          <div style="margin-top:8px;"><b>鍵盤快捷鍵（電腦版）</b><br>
+          ・<b>Ctrl／Cmd + S</b>：依目前畫面自動判斷要存什麼——精簡寫作模式裡存這一章、編輯文章畫面裡存這一篇、其他情況下等同「匯出 Excel」。<br>
+          ・<b>/</b>：跳到搜尋框（沒有在輸入文字、也沒有彈窗開著時才會生效，不會跟瀏覽器內建的搜尋功能衝突）。<br>
+          ・<b>Alt + ←／→</b>：在精簡寫作模式裡切換上一章／下一章。<br>
+          ・<b>Esc</b>：關閉目前開啟的視窗。</div>
 
           <div style="margin-top:12px;"><b>三、該從何開始</b><br>
           您現在的情況比較接近哪一種？<br>
@@ -1331,6 +1343,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       <button class="btn-ghost" id="btnOpenBatchGenreFromSystem" style="width:100%;margin-bottom:8px;" disabled>批次分類（改文類）（已選 0 篇）</button>
       <button class="btn-ghost" id="btnOpenBatchRecalcFromSystem" style="width:100%;margin-bottom:8px;" disabled>批次重算字數行數（已選 0 篇）</button>
       <button class="btn-ghost" id="btnOpenBatchKeywordFromSystem" style="width:100%;margin-bottom:8px;" disabled>批次增刪關鍵字（已選 0 篇）</button>
+      <button class="btn-ghost" id="btnBatchHide" style="width:100%;margin-bottom:8px;" disabled>批次隱藏（已選 0 篇）</button>
+      <button class="btn-ghost" id="btnBatchUnhide" style="width:100%;margin-bottom:8px;" disabled>批次取消隱藏（已選 0 篇）</button>
       <button class="btn-ghost" id="btnOpenFullManuscriptImport" style="width:100%;margin-bottom:8px;">全本導入（僅能識別章節用＼分篇）</button>
       <button class="btn-ghost" id="btnOpenBatchExport" style="width:100%;margin-bottom:8px;" disabled>批次匯出（已選 0 篇）</button>
       <button class="btn-danger" id="btnOpenBatchDeleteFromSystem" style="width:100%;" disabled>批次刪除（已選 0 篇）</button>
@@ -1470,7 +1484,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
 <script>
 (function(){
   const STORAGE_KEY = 'literary-archive-v1';
-  const APP_VERSION = '8.4';
+  const APP_VERSION = '8.6';
   const DEFAULT_VENUES = [
     {name:'聯合副刊', type:'journal'},
     {name:'自由副刊', type:'journal'},
@@ -1569,7 +1583,9 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     { v: '8.1', note: '批次匯出新增 Excel 格式：可切換匯出格式為純文字檔或 Excel，Excel 可勾選要匯出的欄位（文類、篇名、創作日期、字數、行數、關鍵字、創作地點、內文、投稿／得獎／出版紀錄摘要），已選文章每篇一列，套用跟總表匯出相同的單一儲存格 32,767 字上限檢查。PDF 列印匯出待後續階段加入。' },
     { v: '8.2', note: '批次匯出新增 PDF 格式（透過瀏覽器內建列印功能，不需額外字型或函式庫，中文顯示保證正確）：開啟瀏覽器列印視窗，各篇／各章自動分頁，小說章節加上分隔線與標題，作者設定與純文字檔共用同一組。至此批次匯出三種格式（純文字檔、Excel、PDF）全部完成。' },
     { v: '8.3', note: '更新「功能介紹」內容，補齊 v7.1 以來新增的功能與按鈕說明：編輯模式分頁、小說創作功能（所屬部／章節序、小說檢視、精簡寫作模式、新增上一章／新增下一章）、全本導入、批次匯出（純文字檔／Excel／PDF）。' },
-    { v: '8.4', note: '修正排序後📖小說檢視按鈕失去反應的問題：加上排序箭頭時原本用了會整個重建欄位內容的寫法，導致📖按鈕的點擊事件被清除，改為正確的方式加入箭頭，不會影響其他按鈕。' }
+    { v: '8.4', note: '修正排序後📖小說檢視按鈕失去反應的問題：加上排序箭頭時原本用了會整個重建欄位內容的寫法，導致📖按鈕的點擊事件被清除，改為正確的方式加入箭頭，不會影響其他按鈕。' },
+    { v: '8.5', note: '新增電腦版鍵盤快捷鍵：Ctrl／Cmd+S 依畫面情境自動判斷存檔（精簡寫作模式存章節、編輯文章存該篇、其他情況等同匯出 Excel）；/ 跳到搜尋框；Alt+←／→ 在精簡寫作模式切換上一章／下一章；Esc 關閉視窗（原有功能）。功能介紹已加上說明。' },
+    { v: '8.6', note: '新增文章隱藏功能：可在編輯文章勾選「隱藏此文章」，或用批次系統一次隱藏／取消隱藏已選文章；隱藏的文章不會出現在總表、搜尋、統計、小說檢視與分類管理，勾選工具列「顯示隱藏文章」即可暫時看見。隱藏只是畫面上的收起，資料仍以明文存在瀏覽器與匯出的 Excel 內，並非加密。' }
   ];
   const DEFAULT_GENRES = ['詩','小說','散文'];
 
@@ -1837,6 +1853,22 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function getArticle(id){ return state.articles.find(a=>a.id===id); }
+
+  // Hidden articles are only a display-level filter (not encryption). Every
+  // place that LISTS or COUNTS articles for the person goes through
+  // liveArticles(); internal bookkeeping (chapter renumbering, Excel backup,
+  // duplicate lookup) still uses state.articles so nothing is lost or
+  // misnumbered because of a hidden chapter.
+  let showHidden = false;
+  function isArticleVisible(a){ return !a.hidden || showHidden; }
+  function liveArticles(){ return state.articles.filter(isArticleVisible); }
+  function pruneHiddenSelection(){
+    if(showHidden) return;
+    Array.from(selectedIds).forEach(id=>{
+      const a = getArticle(id);
+      if(!a || a.hidden) selectedIds.delete(id);
+    });
+  }
   function getVenue(id){ return state.venues.find(v=>v.id===id); }
 
   // Looks up the publish/inclusion date already recorded elsewhere for this
@@ -1891,7 +1923,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   // have, broken down by result".
   function venueCounts(venueId){
     let accepted=0, rejected=0, pending=0;
-    state.articles.forEach(a=>{
+    liveArticles().forEach(a=>{
       (a.records[venueId]||[]).forEach(r=>{
         if(r.result==='accepted') accepted++;
         else if(r.result==='rejected') rejected++;
@@ -2081,7 +2113,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   }
 
   function filteredSortedArticles(){
-    let list = state.articles.slice();
+    let list = liveArticles();
     if(searchTerm){
       const t = searchTerm.toLowerCase();
       list = list.filter(a =>
@@ -2132,6 +2164,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     list.forEach(a=>{
       const tr = document.createElement('tr');
       if(state.recentImportIds && state.recentImportIds.includes(a.id)) tr.className = 'row-recent-import';
+      if(a.hidden) tr.classList.add('row-hidden-article');
 
       const tdCheck = document.createElement('td');
       tdCheck.className = 'col-0';
@@ -2156,7 +2189,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       linkBtn.className = 'title-link';
       if(state.recentImportIds && state.recentImportIds.includes(a.id)) linkBtn.classList.add('title-recent-import');
       if(a.needsReview) linkBtn.classList.add('title-needs-review');
-      linkBtn.textContent = a.title || '（未命名）';
+      linkBtn.textContent = (a.hidden ? '🙈 ' : '') + (a.title || '（未命名）');
       linkBtn.title = a.needsReview ? '資料待驗證：匯入時跳過了與此篇的合併，內容可能需要人工確認'
         : (state.recentImportIds && state.recentImportIds.includes(a.id)) ? '新匯入，尚未匯出 Excel 永久存檔' : '';
       linkBtn.onclick = () => openArticleModal(a.id);
@@ -2839,7 +2872,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     // Continue numbering from whatever's already in this venue+部, rather
     // than always restarting at 1 — avoids colliding with chapters that
     // might already exist there from a previous import or manual entry.
-    const existingChapters = getBookChapters(venueId).filter(a => (a.novelPart||'') === novelPart);
+    const existingChapters = getBookChapters(venueId, true).filter(a => (a.novelPart||'') === novelPart);
     let nextOrder = existingChapters.reduce((max, a) => (a.novelChapterOrder != null && a.novelChapterOrder >= max) ? a.novelChapterOrder + 1 : max, 1);
 
     const addedIds = [];
@@ -2904,8 +2937,8 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   // A "chapter" is any article with an accepted record under this
   // publication venue — reuses the EXISTING 出版收錄 relationship rather
   // than a new "belongs to this book" field, per Ger's own observation.
-  function getBookChapters(venueId){
-    return state.articles.filter(a => (a.records[venueId]||[]).some(r=>r.result==='accepted'));
+  function getBookChapters(venueId, includeHidden){
+    return (includeHidden ? state.articles : liveArticles()).filter(a => (a.records[venueId]||[]).some(r=>r.result==='accepted'));
   }
 
   function groupChaptersByPart(chapters){
@@ -3085,7 +3118,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   // Shifts every chapter in the same 部 whose order is >= fromOrder up by
   // one, opening a gap at fromOrder for a chapter being inserted there.
   function shiftChapterOrdersFrom(venueId, part, fromOrder){
-    getBookChapters(venueId).forEach(a=>{
+    getBookChapters(venueId, true).forEach(a=>{
       if(a.novelPart === (part||'') && a.novelChapterOrder != null && a.novelChapterOrder >= fromOrder){
         a.novelChapterOrder += 1;
       }
@@ -3193,7 +3226,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         vDetails.appendChild(vSummary);
 
         const articlesUnder = [];
-        state.articles.forEach(a=>{
+        liveArticles().forEach(a=>{
           (a.records[v.id]||[]).forEach(r=>{
             if(r.result==='accepted') articlesUnder.push({id:a.id, title:a.title, date:r.publishDate||'日期未定'});
           });
@@ -3406,14 +3439,14 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     {
       key: 'newimport',
       isEnabled: () => state.recentImportIds && state.recentImportIds.length > 0,
-      getMatchedIds: () => new Set(state.recentImportIds || [])
+      getMatchedIds: () => new Set((state.recentImportIds || []).filter(id => { const a = getArticle(id); return a && isArticleVisible(a); }))
     },
     {
       key: 'genre',
       isEnabled: () => true,
       getMatchedIds: () => {
         const g = document.getElementById('bs-genre-select').value;
-        return new Set(state.articles.filter(a=>a.genre===g).map(a=>a.id));
+        return new Set(liveArticles().filter(a=>a.genre===g).map(a=>a.id));
       }
     },
     {
@@ -3423,7 +3456,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         const catKey = document.getElementById('bs-category-select').value;
         const venueIds = new Set(state.venues.filter(v=>v.type===catKey).map(v=>v.id));
         const ids = new Set();
-        state.articles.forEach(a=>{
+        liveArticles().forEach(a=>{
           Object.keys(a.records||{}).forEach(vid=>{
             if(venueIds.has(vid) && (a.records[vid]||[]).length>0) ids.add(a.id);
           });
@@ -3437,7 +3470,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       getMatchedIds: () => {
         const venueId = document.getElementById('bs-venue-select').value;
         const ids = new Set();
-        state.articles.forEach(a=>{
+        liveArticles().forEach(a=>{
           if((a.records[venueId]||[]).length>0) ids.add(a.id);
         });
         return ids;
@@ -3449,7 +3482,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       getMatchedIds: () => {
         const start = document.getElementById('bs-date-start').value;
         const end = document.getElementById('bs-date-end').value;
-        return new Set(state.articles.filter(a=>{
+        return new Set(liveArticles().filter(a=>{
           if(!a.createDate) return false;
           if(start && a.createDate < start) return false;
           if(end && a.createDate > end) return false;
@@ -3466,7 +3499,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         const maxVal = document.getElementById('bs-count-max').value;
         const min = minVal === '' ? null : Number(minVal);
         const max = maxVal === '' ? null : Number(maxVal);
-        return new Set(state.articles.filter(a=>{
+        return new Set(liveArticles().filter(a=>{
           const v = field==='word' ? (a.wordCount||0) : (a.lineCount||0);
           if(min!=null && v<min) return false;
           if(max!=null && v>max) return false;
@@ -3622,7 +3655,33 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     });
   }
 
+  function batchSetHidden(flag){
+    if(selectedIds.size === 0) return;
+    let count = 0;
+    selectedIds.forEach(id=>{
+      const a = getArticle(id);
+      if(a && !!a.hidden !== flag){ a.hidden = flag; count++; }
+    });
+    if(flag && !showHidden) selectedIds.clear();
+    persist();
+    render();
+    showInfoModal(flag
+      ? `已隱藏 ${count} 篇文章。要再看到它們，請勾選工具列的「顯示隱藏文章」。`
+      : `已取消隱藏 ${count} 篇文章。`);
+  }
+
   function updateBatchDeleteBtn(){
+    const hideBtn = document.getElementById('btnBatchHide');
+    if(hideBtn){
+      hideBtn.textContent = `批次隱藏（已選 ${selectedIds.size} 篇）`;
+      hideBtn.disabled = selectedIds.size === 0;
+    }
+    const unhideBtn = document.getElementById('btnBatchUnhide');
+    if(unhideBtn){
+      unhideBtn.textContent = `批次取消隱藏（已選 ${selectedIds.size} 篇）`;
+      unhideBtn.disabled = selectedIds.size === 0 || !showHidden;
+      unhideBtn.title = showHidden ? '' : '需先勾選「顯示隱藏文章」才能選到隱藏的文章';
+    }
     const clearBtn = document.getElementById('btnClearSelection');
     if(clearBtn) clearBtn.textContent = `清除選擇（${selectedIds.size}）`;
     const exportBtn = document.getElementById('btnOpenBatchExport');
@@ -3681,6 +3740,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     populateGenreSelect(a.genre || '詩');
     document.getElementById('f-title').value = a.title || '';
     document.getElementById('f-createDate').value = a.createDate || '';
+    document.getElementById('f-hidden').checked = !!a.hidden;
     document.getElementById('f-novelPart').value = a.novelPart || '';
     document.getElementById('f-novelChapterOrder').value = (a.novelChapterOrder != null) ? a.novelChapterOrder : '';
     updateNovelFieldsVisibility();
@@ -4512,6 +4572,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     const wordCount = parseInt(document.getElementById('f-wordCount').value, 10) || 0;
     const lineCount = parseInt(document.getElementById('f-lineCount').value, 10) || 0;
     const location = document.getElementById('f-location').value.trim();
+    const hidden = document.getElementById('f-hidden').checked;
     const novelPart = genre === '小說' ? document.getElementById('f-novelPart').value.trim() : '';
     const novelChapterOrderRaw = genre === '小說' ? document.getElementById('f-novelChapterOrder').value : '';
     const novelChapterOrder = novelChapterOrderRaw === '' ? null : (parseInt(novelChapterOrderRaw, 10) || null);
@@ -4522,14 +4583,16 @@ https://github.com/nodeca/pako/blob/main/LICENSE
       a.wordCount = wordCount; a.lineCount = lineCount; a.location = location;
       a.novelPart = novelPart; a.novelChapterOrder = novelChapterOrder;
       a.needsReview = false;
+      a.hidden = hidden;
     } else {
       state.articles.push({
         id: uid(), title, genre, createDate, createLabel, keywords, content, wordCount, lineCount, location,
-        novelPart, novelChapterOrder,
+        novelPart, novelChapterOrder, hidden,
         records: newArticleDraft.records, drafts: newArticleDraft.drafts
       });
       newArticleDraft = { records: {}, drafts: [] };
     }
+    pruneHiddenSelection();
     persist();
     render();
     closeArticleModal();
@@ -4716,7 +4779,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     }
     const rows = [];
     const blankRow = {
-      '資料類型':'', '篇名':'', '文類':'', '創作／修訂日期':'', '版本標記':'', '字數':'', '行數':'', '關鍵字':'', '內文':'', '創作地點':'',
+      '資料類型':'', '篇名':'', '文類':'', '創作／修訂日期':'', '版本標記':'', '字數':'', '行數':'', '關鍵字':'', '內文':'', '創作地點':'', '隱藏':'',
       '欄位名稱':'', '類型':'', '投稿日期':'', '結果':'', '刊登／得獎／出版日期':'', '備註':'',
       '版本日期':'', '版本名稱':''
     };
@@ -4725,7 +4788,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
         '資料類型':'文章', '篇名': a.title, '文類': a.genre || '詩', '創作／修訂日期': a.createDate || '', '版本標記': a.createLabel || '初稿',
         '字數': (a.wordCount != null) ? a.wordCount : countWords(a.content),
         '行數': (a.lineCount != null) ? a.lineCount : countLines(a.content),
-        '關鍵字': (a.keywords||[]).join('、'), '內文': a.content || '', '創作地點': a.location || ''
+        '關鍵字': (a.keywords||[]).join('、'), '內文': a.content || '', '創作地點': a.location || '', '隱藏': a.hidden ? '是' : ''
       });
       state.venues.forEach(v=>{
         (a.records[v.id]||[]).forEach(r=>{
@@ -4889,6 +4952,7 @@ https://github.com/nodeca/pako/blob/main/LICENSE
           wordCount: Number(row['字數']) || 0,
           lineCount: Number(row['行數']) || 0,
           location: (row['創作地點']||'').toString().trim(),
+          hidden: (row['隱藏']||'').toString().trim() === '是',
           drafts: [], records: {}
         };
         state.articles.push(existing);
@@ -6298,6 +6362,19 @@ https://github.com/nodeca/pako/blob/main/LICENSE
     hideDateCol = e.target.checked;
     render();
   });
+  document.getElementById('showHiddenToggle').addEventListener('change', (e)=>{
+    showHidden = e.target.checked;
+    pruneHiddenSelection();
+    render();
+  });
+  document.getElementById('btnBatchHide').onclick = () => {
+    document.getElementById('batchSystemOverlay').classList.remove('show');
+    batchSetHidden(true);
+  };
+  document.getElementById('btnBatchUnhide').onclick = () => {
+    document.getElementById('batchSystemOverlay').classList.remove('show');
+    batchSetHidden(false);
+  };
   let resizeRenderTimer = null;
   window.addEventListener('resize', ()=>{
     // Sticky offsets depend on the desktop/mobile breakpoint — re-render
@@ -6394,6 +6471,43 @@ https://github.com/nodeca/pako/blob/main/LICENSE
   });
   document.addEventListener('keydown', (e)=>{
     if(e.key === 'Escape'){ closeArticleModal(); closeBatchModal(); closeCategoryModal(); closeBatchCategoryModal(); closeWelcomeModal(); closeImportWizard(); closeMergeArticlesModal(); document.getElementById('colorSettingsOverlay').classList.remove('show'); document.getElementById('batchSystemOverlay').classList.remove('show'); closeBatchGenreModal(); closeBatchSelectModal(); closeBatchKeywordModal(); closeTxtImportModal(); closePasteImportModal(); closeNovelViewModal(); closeWriteModeModal(); closeFullManuscriptModal(); closeBatchExportModal(); }
+
+    // Ctrl/Cmd+S — context-aware: saves whatever's actually open (chapter
+    // in write mode, article in the edit modal) rather than always meaning
+    // "export Excel", but always blocks the browser's own save-page dialog.
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's'){
+      e.preventDefault();
+      if(document.getElementById('writeModeOverlay').classList.contains('show')){
+        saveCurrentWriteModeChapter();
+        showInfoModal('已儲存本章。');
+      } else if(document.getElementById('articleOverlay').classList.contains('show')){
+        saveArticleFromModal();
+      } else {
+        exportExcel();
+      }
+      return;
+    }
+
+    // "/" focuses the search box — a common convention (Gmail, GitHub,
+    // etc.), deliberately not Ctrl+F so the browser's own page-find stays
+    // untouched. Only fires when not already typing somewhere and no
+    // modal is open, so it never interrupts normal text entry.
+    const activeTag = document.activeElement ? document.activeElement.tagName : '';
+    const isTyping = activeTag === 'INPUT' || activeTag === 'TEXTAREA' || activeTag === 'SELECT';
+    const anyModalOpenForShortcut = Array.from(document.querySelectorAll('.overlay')).some(el => el.classList.contains('show'));
+    if(e.key === '/' && !isTyping && !anyModalOpenForShortcut){
+      e.preventDefault();
+      document.getElementById('searchInput').focus();
+      return;
+    }
+
+    // Alt+←/→ switches chapters in 精簡寫作模式 — Alt+arrow isn't used for
+    // text-cursor movement, so this works safely even while the content
+    // textarea itself has focus, without touching plain arrow-key typing.
+    if(e.altKey && document.getElementById('writeModeOverlay').classList.contains('show')){
+      if(e.key === 'ArrowLeft'){ e.preventDefault(); writeModeGoTo(-1); return; }
+      if(e.key === 'ArrowRight'){ e.preventDefault(); writeModeGoTo(1); return; }
+    }
   });
 
   document.getElementById('closeWelcomeModal').onclick = closeWelcomeModal;
